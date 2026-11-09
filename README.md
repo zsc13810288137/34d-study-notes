@@ -1,10 +1,10 @@
-# 📚 Sachkundenachweis §34d GewO — 学习笔记
+# 📚 Sachkundenachweis §34d GewO — 学习笔记 and 在线需求分析
 
 IHK 保险中介资质考试（Versicherungsvermittler）复习笔记，中德对照。
 
 ## 📖 在线阅读
 
-👉 [点击查看学习笔记](https://zsc13810288137.github.io/34d-study-notes/34d-study-notes.html)
+👉 [点击查看学习笔记](https://34d.qi-kleinod.com/)
 
 ## 内容概览
 
