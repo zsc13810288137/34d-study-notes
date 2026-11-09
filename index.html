@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§34d GewO – Versicherungsvermittlung</title>
+<style>
+  :root {
+    --primary: #1a5276;
+    --primary-light: #2980b9;
+    --accent: #27ae60;
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --text-light: #7f8c8d;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    text-align: center;
+    padding: 4rem 1.5rem 3rem;
+  }
+  .hero h1 { font-size: 2.2rem; margin-bottom: 0.75rem; }
+  .hero p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+  .hero .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: -2rem auto 3rem;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.25s, box-shadow 0.25s;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+
+  .card-icon {
+    font-size: 3rem;
+    padding: 2rem 2rem 1rem;
+    text-align: center;
+  }
+  .card-body {
+    padding: 0 2rem 2rem;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-body h2 { font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--primary); }
+  .card-body p { font-size: 0.95rem; color: var(--text-light); line-height: 1.5; flex: 1; }
+  .card-btn {
+    display: inline-block;
+    margin-top: 1.25rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+  .card:first-child .card-btn { background: var(--accent); color: white; }
+  .card:first-child .card-btn:hover { background: #219a52; }
+  .card:last-child .card-btn { background: var(--primary); color: white; }
+  .card:last-child .card-btn:hover { background: var(--primary-light); }
+
+  .footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    border-top: 1px solid #dce1e6;
+  }
+  .footer a { color: var(--primary-light); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 700px) {
+    .hero { padding: 3rem 1rem 2.5rem; }
+    .hero h1 { font-size: 1.6rem; }
+    .cards { grid-template-columns: 1fr; margin-top: -1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">§34d Gewerbeordnung</div>
+  <h1>🛡️ Versicherungsvermittlung</h1>
+  <p>Interaktive Bedarfsanalyse und umfassende Lernnotizen für die Versicherungsvermittlung nach §34d GewO.</p>
+</div>
+
+<div class="cards">
+  <a class="card" href="bedarfsanalyse.html">
+    <div class="card-icon">🔍</div>
+    <div class="card-body">
+      <h2>Versicherungs-Bedarfsanalyse</h2>
+      <p>Interaktiver Fragebogen zur Ermittlung Ihres individuellen Versicherungsbedarfs. Basierend auf aktuellen Empfehlungen der Verbraucherzentralen und der geltenden Rechtslage.</p>
+      <span class="card-btn">Analyse starten →</span>
+    </div>
+  </a>
+
+  <a class="card" href="notes.html">
+    <div class="card-icon">📚</div>
+    <div class="card-body">
+      <h2>§34d Lernnotizen</h2>
+      <p>Umfassende zweisprachige Studiennotizen (Deutsch/Chinesisch) zur Sachkundeprüfung §34d GewO – 17 Kapitel zu Versicherungsrecht, Produkten und Vermittlungspraxis.</p>
+      <span class="card-btn">Notizen öffnen →</span>
+    </div>
+  </a>
+</div>
+
+<div class="footer">
+  <p>Kontakt: <a href="mailto:zsc13810288137@gmail.com">zsc13810288137@gmail.com</a></p>
+  <p style="margin-top:0.5rem;"><a href="https://nauhcnes.qi-kleinod.com">← Zurück zur Hauptseite</a></p>
+</div>
+
+</body>
+</html>

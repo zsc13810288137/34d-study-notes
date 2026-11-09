@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Versicherungs-Bedarfsanalyse | §34d GewO</title>
+<style>
+  :root {
+    --primary: #1a5276;
+    --primary-light: #2980b9;
+    --accent: #27ae60;
+    --accent-hover: #219a52;
+    --warn: #e67e22;
+    --danger: #c0392b;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --text-light: #7f8c8d;
+    --border: #dce1e6;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .header p { opacity: 0.9; font-size: 1rem; max-width: 600px; margin: 0 auto; }
+
+  /* Navigation Tabs */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-btn {
+    padding: 1rem 1.5rem;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--primary); }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  /* Sections */
+  .section { display: none; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+  .section.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+  }
+  .card h3 { color: var(--primary); margin-bottom: 0.5rem; font-size: 1.1rem; }
+  .card p { color: var(--text-light); font-size: 0.9rem; }
+
+  /* Decision Tree (Übersicht) */
+  .tree-container { padding: 1rem 0; }
+
+  .tier {
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .tier-header {
+    padding: 1rem 1.5rem;
+    color: white;
+    font-weight: 700;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .tier-header .badge {
+    background: rgba(255,255,255,0.25);
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+  }
+  .tier-1 .tier-header { background: var(--danger); }
+  .tier-2 .tier-header { background: var(--warn); }
+  .tier-3 .tier-header { background: var(--primary-light); }
+  .tier-4 .tier-header { background: #8e44ad; }
+  .tier-5 .tier-header { background: var(--text-light); }
+
+  .tier-body { background: white; padding: 1rem 1.5rem; }
+
+  .ins-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .ins-item:last-child { border-bottom: none; }
+  .ins-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+  .ins-info { flex: 1; }
+  .ins-name { font-weight: 600; font-size: 0.95rem; }
+  .ins-desc { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
+  .ins-condition {
+    display: inline-block;
+    background: #eaf2f8;
+    color: var(--primary);
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Questionnaire */
+  .q-progress {
+    background: var(--border);
+    border-radius: 10px;
+    height: 8px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .q-progress-bar {
+    background: linear-gradient(90deg, var(--accent), var(--primary-light));
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+  .q-step-label {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .question-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .question-card h2 {
+    font-size: 1.3rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  .question-card .q-subtitle {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .opt-btn {
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  .opt-btn:hover {
+    border-color: var(--primary-light);
+    background: #eaf2f8;
+  }
+  .opt-btn.selected {
+    border-color: var(--primary);
+    background: #d6eaf8;
+    font-weight: 600;
+  }
+  .opt-btn .opt-icon { font-size: 1.5rem; display: block; margin-bottom: 0.4rem; }
+
+  .checkbox-options { max-width: 500px; margin: 0 auto; text-align: left; }
+  .chk-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+  }
+  .chk-item:hover { border-color: var(--primary-light); background: #eaf2f8; }
+  .chk-item.checked { border-color: var(--primary); background: #d6eaf8; }
+  .chk-item input { display: none; }
+  .chk-box {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .chk-item.checked .chk-box {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  .chk-item.checked .chk-box::after {
+    content: '✓';
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .nav-btns {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary {
+    background: white;
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--primary-light); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Results */
+  .result-section { margin-bottom: 2rem; }
+  .result-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .result-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    border-left: 4px solid var(--border);
+  }
+  .result-card.essential { border-left-color: var(--danger); }
+  .result-card.recommended { border-left-color: var(--warn); }
+  .result-card.optional { border-left-color: var(--primary-light); }
+  .result-card.skip { border-left-color: var(--text-light); opacity: 0.7; }
+
+  .result-card .r-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .result-card .r-body { flex: 1; }
+  .result-card .r-name { font-weight: 700; font-size: 1rem; }
+  .result-card .r-reason { font-size: 0.85rem; color: var(--text-light); margin-top: 4px; }
+  .result-card .r-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 8px;
+    margin-top: 6px;
+  }
+  .tag-pflicht { background: #fadbd8; color: var(--danger); }
+  .tag-essential { background: #fdebd0; color: var(--warn); }
+  .tag-empfohlen { background: #d4efdf; color: var(--accent); }
+  .tag-optional { background: #eaf2f8; color: var(--primary-light); }
+  .tag-skip { background: #eee; color: var(--text-light); }
+
+  .result-card .r-check {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* CTA */
+  .cta-box {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 2rem;
+  }
+  .cta-box h3 { margin-bottom: 0.5rem; font-size: 1.2rem; }
+  .cta-box p { opacity: 0.9; margin-bottom: 1rem; font-size: 0.9rem; }
+  .cta-box a {
+    display: inline-block;
+    background: white;
+    color: var(--primary);
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform 0.2s;
+  }
+  .cta-box a:hover { transform: scale(1.05); }
+
+  /* Disclaimer */
+  .disclaimer {
+    background: #fef9e7;
+    border: 1px solid #f9e79f;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: 0.8rem;
+    color: #7d6608;
+    margin-bottom: 2rem;
+  }
+  .disclaimer strong { display: block; margin-bottom: 4px; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+  .footer a { color: var(--primary-light); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.4rem; }
+    .tab-btn { padding: 0.75rem 0.75rem; font-size: 0.8rem; }
+    .options { grid-template-columns: 1fr 1fr; }
+    .question-card { padding: 1.5rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🛡️ Versicherungs-Bedarfsanalyse</h1>
+  <p>Finden Sie heraus, welche Versicherungen Sie wirklich brauchen – basierend auf Ihrer individuellen Lebenssituation.</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('overview')">📋 Übersicht</button>
+  <button class="tab-btn" onclick="showTab('quiz')">🔍 Bedarfsanalyse</button>
+  <button class="tab-btn" onclick="showTab('result')" id="resultTab" style="display:none">📊 Ihr Ergebnis</button>
+</div>
+
+<!-- ====== ÜBERSICHT ====== -->
+<div class="section active" id="sec-overview">
+  <div class="disclaimer">
+    <strong>⚠️ Hinweis gemäß § 34d GewO</strong>
+    Diese Bedarfsanalyse dient ausschließlich der ersten Orientierung und ersetzt keine individuelle Beratung durch einen zugelassenen Versicherungsvermittler. Die Empfehlungen basieren auf allgemeinen Richtlinien der Verbraucherzentralen (Stand 2026).
+  </div>
+
+  <div class="tree-container">
+    <!-- Tier 1: Pflicht -->
+    <div class="tier tier-1">
+      <div class="tier-header">
+        🔴 Pflichtversicherungen <span class="badge">Gesetzlich vorgeschrieben</span>
+      </div>
+      <div class="tier-body">
+        <div class="ins-item">
+          <span class="ins-icon">🏥</span>
+          <div class="ins-info">
+            <div class="ins-name">Krankenversicherung (GKV / PKV)</div>
+            <div class="ins-desc">Pflicht für jede Person mit Wohnsitz in Deutschland. Gesetzlich (GKV) oder privat (PKV) – abhängig vom Einkommen und Berufsstatus.</div>
+            <span class="ins-condition">§ 193 VVG – Für alle</span>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🏛️</span>
+          <div class="ins-info">
+            <div class="ins-name">Sozialversicherung (5 Säulen)</div>
+            <div class="ins-desc">Rentenversicherung, Arbeitslosenversicherung, Pflegeversicherung, Unfallversicherung, Krankenversicherung – für Arbeitnehmer automatisch.</div>
+            <span class="ins-condition">Für Arbeitnehmer mit Einkommen > 603 €/Monat</span>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🚗</span>
+          <div class="ins-info">
+            <div class="ins-name">Kfz-Haftpflichtversicherung</div>
+            <div class="ins-desc">Pflicht für jedes zugelassene Kraftfahrzeug. Deckt Schäden an Dritten bei selbstverschuldeten Unfällen.</div>
+            <span class="ins-condition">Für Fahrzeughalter</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier 2: Essentiell -->
+    <div class="tier tier-2">
+      <div class="tier-header">
+        🟠 Essentiell empfohlen <span class="badge">Verbraucherzentrale: „Muss"</span>
+      </div>
+      <div class="tier-body">
+        <div class="ins-item">
+          <span class="ins-icon">⚡</span>
+          <div class="ins-info">
+            <div class="ins-name">Privathaftpflichtversicherung</div>
+            <div class="ins-desc">Die wichtigste freiwillige Versicherung. Schützt vor existenzbedrohenden Schadensersatzforderungen. Familientarif möglich. Ab ca. 3–5 €/Monat.</div>
+            <span class="ins-condition">Für jeden Haushalt</span>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">💼</span>
+          <div class="ins-info">
+            <div class="ins-name">Berufsunfähigkeitsversicherung (BU)</div>
+            <div class="ins-desc">Jeder 4. Beschäftigte wird berufsunfähig. Sichert Ihr Einkommen bei Krankheit oder Unfall. Je jünger der Einstieg, desto günstiger.</div>
+            <span class="ins-condition">Für alle Erwerbstätigen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier 3: Sehr empfehlenswert -->
+    <div class="tier tier-3">
+      <div class="tier-header">
+        🔵 Sehr empfehlenswert <span class="badge">Situationsabhängig</span>
+      </div>
+      <div class="tier-body">
+        <div class="ins-item">
+          <span class="ins-icon">✈️</span>
+          <div class="ins-info">
+            <div class="ins-name">Auslandskrankenversicherung</div>
+            <div class="ins-desc">Ab ca. 8–15 €/Jahr. Deckt Behandlungen und Rücktransport bei Reisen ins Ausland, auch innerhalb der EU.</div>
+            <span class="ins-condition">Für alle, die ins Ausland reisen</span>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">👨‍👩‍👧</span>
+          <div class="ins-info">
+            <div class="ins-name">Risikolebensversicherung</div>
+            <div class="ins-desc">Sichert Hinterbliebene finanziell ab – besonders wichtig bei laufenden Krediten oder wenn ein Partner Hauptverdiener ist.</div>
+            <span class="ins-condition">Für Familien, Kreditnehmer, Alleinerziehende</span>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🏠</span>
+          <div class="ins-info">
+            <div class="ins-name">Hausratversicherung</div>
+            <div class="ins-desc">Schützt Möbel, Elektronik und persönliche Gegenstände gegen Einbruch, Brand, Wasserschäden und Sturm.</div>
+            <span class="ins-condition">Bei wertvollem Hausrat</span>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🏡</span>
+          <div class="ins-info">
+            <div class="ins-name">Wohngebäudeversicherung</div>
+            <div class="ins-desc">Deckt Schäden am Gebäude selbst (Brand, Sturm, Leitungswasser). Unbedingt mit Elementarschadenversicherung ergänzen!</div>
+            <span class="ins-condition">Für Immobilienbesitzer</span>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🧒</span>
+          <div class="ins-info">
+            <div class="ins-name">Kinderinvaliditätsversicherung</div>
+            <div class="ins-desc">Schützt Kinder vor den finanziellen Folgen einer dauerhaften Behinderung durch Unfall oder Krankheit. Lebenslange Rente möglich.</div>
+            <span class="ins-condition">Für Eltern mit Kindern</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier 4: Optional -->
+    <div class="tier tier-4">
+      <div class="tier-header">
+        🟣 Sinnvoll im Einzelfall <span class="badge">Kann-Versicherungen</span>
+      </div>
+      <div class="tier-body">
+        <div class="ins-item">
+          <span class="ins-icon">⚖️</span>
+          <div class="ins-info">
+            <div class="ins-name">Rechtsschutzversicherung</div>
+            <div class="ins-desc">Übernimmt Anwalts- und Gerichtskosten. Sinnvoll bei Arbeitsrecht, Mietrecht oder Verkehrsrecht.</div>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🦷</span>
+          <div class="ins-info">
+            <div class="ins-name">Zahnzusatzversicherung</div>
+            <div class="ins-desc">Ergänzt die GKV-Leistungen bei Zahnersatz, professioneller Zahnreinigung und Kieferorthopädie.</div>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🏥</span>
+          <div class="ins-info">
+            <div class="ins-name">Krankenzusatzversicherung</div>
+            <div class="ins-desc">Einzelzimmer, Chefarzt, Heilpraktiker – ergänzt die gesetzliche Krankenversicherung.</div>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🤕</span>
+          <div class="ins-info">
+            <div class="ins-name">Private Unfallversicherung</div>
+            <div class="ins-desc">Leistet bei dauerhafter Invalidität durch einen Unfall. Besonders für Selbständige (kein gesetzlicher Unfallschutz).</div>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🚙</span>
+          <div class="ins-info">
+            <div class="ins-name">Kfz-Kaskoversicherung</div>
+            <div class="ins-desc">Teilkasko (Diebstahl, Hagel, Wildunfall) oder Vollkasko (+ selbst verschuldete Schäden). Je nach Fahrzeugwert.</div>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🐾</span>
+          <div class="ins-info">
+            <div class="ins-name">Tierhalterhaftpflicht</div>
+            <div class="ins-desc">Pflicht für Hundehalter in vielen Bundesländern. Auch für Pferdehalter sehr empfehlenswert.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier 5: Verzichtbar -->
+    <div class="tier tier-5">
+      <div class="tier-header">
+        ⚪ Meist verzichtbar <span class="badge">Verbraucherzentrale: „Nein"</span>
+      </div>
+      <div class="tier-body">
+        <div class="ins-item">
+          <span class="ins-icon">📱</span>
+          <div class="ins-info">
+            <div class="ins-name">Handy-, Brillen-, Reisegepäckversicherung</div>
+            <div class="ins-desc">Kleine Schäden besser selbst tragen. Die Beiträge stehen oft in keinem Verhältnis zur Leistung.</div>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🪦</span>
+          <div class="ins-info">
+            <div class="ins-name">Sterbegeldversicherung</div>
+            <div class="ins-desc">Oft zu teuer für die Leistung. Besser: Rücklagen für Bestattungskosten selbst ansparen.</div>
+          </div>
+        </div>
+        <div class="ins-item">
+          <span class="ins-icon">🚗</span>
+          <div class="ins-info">
+            <div class="ins-name">Insassenunfallversicherung</div>
+            <div class="ins-desc">Überflüssig – Insassen sind bereits über die Kfz-Haftpflicht des Unfallverursachers abgedeckt.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin: 2rem 0;">
+    <button class="btn btn-primary" onclick="showTab('quiz')" style="font-size:1.1rem; padding: 1rem 2.5rem;">
+      🔍 Jetzt Ihre persönliche Analyse starten →
+    </button>
+  </div>
+</div>
+
+<!-- ====== FRAGEBOGEN ====== -->
+<div class="section" id="sec-quiz">
+  <div class="disclaimer">
+    <strong>📝 So funktioniert es</strong>
+    Beantworten Sie 7 kurze Fragen zu Ihrer Lebenssituation. Am Ende erhalten Sie eine individuelle Empfehlung, welche Versicherungen für Sie wichtig, sinnvoll oder verzichtbar sind.
+  </div>
+
+  <div class="q-step-label" id="stepLabel">Frage 1 von 7</div>
+  <div class="q-progress"><div class="q-progress-bar" id="progressBar" style="width:14%"></div></div>
+
+  <div class="question-card" id="questionCard">
+    <!-- Dynamisch gefüllt -->
+  </div>
+</div>
+
+<!-- ====== ERGEBNIS ====== -->
+<div class="section" id="sec-result">
+  <div class="disclaimer">
+    <strong>📊 Ihre persönliche Versicherungsempfehlung</strong>
+    Basierend auf Ihren Angaben haben wir folgende Empfehlungen für Sie erstellt. Diese Einschätzung dient der Orientierung – für verbindliche Beratung wenden Sie sich an einen zugelassenen Versicherungsvermittler.
+  </div>
+  <div id="resultContent"></div>
+
+  <div class="cta-box">
+    <h3>📧 Persönliche Beratung gewünscht?</h3>
+    <p>Ich helfe Ihnen gerne bei der Auswahl der passenden Versicherungen und erstelle ein individuelles Angebot für Sie.</p>
+    <a href="mailto:zsc13810288137@gmail.com?subject=Versicherungsberatung%20–%20Anfrage%20über%20Bedarfsanalyse">✉️ Beratungstermin anfragen</a>
+  </div>
+
+  <div style="text-align:center; margin-top:1.5rem;">
+    <button class="btn btn-secondary" onclick="resetQuiz()">🔄 Analyse wiederholen</button>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Versicherungs-Bedarfsanalyse gemäß §34d GewO · Orientierungshilfe, keine Rechtsberatung</p>
+  <p style="margin-top:0.5rem;">Quellen: <a href="https://www.verbraucherzentrale.de" target="_blank">Verbraucherzentrale</a> · <a href="https://www.finanztip.de" target="_blank">Finanztip</a> · Stand: November 2026</p>
+  <p style="margin-top:0.5rem;"><a href="index.html">← Zurück zu den §34d Lernnotizen</a></p>
+</div>
+
+<script>
+// ===== TAB NAVIGATION =====
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.textContent.includes(tab === 'overview' ? 'Übersicht' : tab === 'quiz' ? 'Bedarfsanalyse' : 'Ergebnis'))
+      b.classList.add('active');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== QUESTIONNAIRE DATA =====
+const questions = [
+  {
+    id: 'age',
+    title: 'Wie alt sind Sie?',
+    subtitle: 'Ihr Alter beeinflusst die Empfehlungen für Vorsorge und Absicherung.',
+    type: 'single',
+    options: [
+      { icon: '🎓', label: '18–25', value: 'young' },
+      { icon: '💼', label: '26–35', value: 'early_career' },
+      { icon: '👔', label: '36–50', value: 'mid_career' },
+      { icon: '🏖️', label: '51–67', value: 'late_career' },
+      { icon: '🌅', label: '67+', value: 'retired' }
+    ]
+  },
+  {
+    id: 'family',
+    title: 'Wie ist Ihr Familienstand?',
+    subtitle: 'Die familiäre Situation bestimmt, wer mitversichert werden sollte.',
+    type: 'single',
+    options: [
+      { icon: '👤', label: 'Ledig / Alleinlebend', value: 'single' },
+      { icon: '👫', label: 'Partnerschaft / Ehe', value: 'partner' },
+      { icon: '👨‍👩‍👧', label: 'Familie mit Kind(ern)', value: 'family' },
+      { icon: '👩‍👧', label: 'Alleinerziehend', value: 'single_parent' }
+    ]
+  },
+  {
+    id: 'job',
+    title: 'Wie ist Ihr beruflicher Status?',
+    subtitle: 'Angestellte, Selbständige und Beamte haben unterschiedlichen Versicherungsbedarf.',
+    type: 'single',
+    options: [
+      { icon: '🏢', label: 'Angestellt', value: 'employed' },
+      { icon: '🚀', label: 'Selbständig', value: 'self_employed' },
+      { icon: '🏛️', label: 'Beamte/r', value: 'civil_servant' },
+      { icon: '🎓', label: 'Student/in / Azubi', value: 'student' },
+      { icon: '📋', label: 'Arbeitssuchend / Nicht erwerbstätig', value: 'unemployed' }
+    ]
+  },
+  {
+    id: 'housing',
+    title: 'Wie ist Ihre Wohnsituation?',
+    subtitle: 'Immobilienbesitzer brauchen andere Versicherungen als Mieter.',
+    type: 'single',
+    options: [
+      { icon: '🏠', label: 'Miete', value: 'rent' },
+      { icon: '🏡', label: 'Eigentumswohnung', value: 'condo' },
+      { icon: '🏘️', label: 'Eigenheim / Haus', value: 'house' }
+    ]
+  },
+  {
+    id: 'vehicle',
+    title: 'Besitzen Sie ein Kraftfahrzeug?',
+    subtitle: '',
+    type: 'single',
+    options: [
+      { icon: '🚗', label: 'Ja, Auto', value: 'car' },
+      { icon: '🏍️', label: 'Ja, Motorrad', value: 'motorcycle' },
+      { icon: '🚗🏍️', label: 'Beides', value: 'both' },
+      { icon: '🚶', label: 'Nein', value: 'none' }
+    ]
+  },
+  {
+    id: 'extras',
+    title: 'Was trifft auf Sie zu?',
+    subtitle: 'Wählen Sie alles, was zutrifft. Diese Details verfeinern Ihre Empfehlung.',
+    type: 'multi',
+    options: [
+      { label: '✈️ Ich reise regelmäßig ins Ausland', value: 'travel' },
+      { label: '🐕 Ich habe einen Hund', value: 'dog' },
+      { label: '🐴 Ich habe ein Pferd', value: 'horse' },
+      { label: '💰 Ich habe einen laufenden Kredit / Hypothek', value: 'loan' },
+      { label: '👶 Ich plane Nachwuchs', value: 'planning_kids' },
+      { label: '🏋️ Ich übe risikoreiche Hobbys aus', value: 'risky_hobby' }
+    ]
+  },
+  {
+    id: 'existing',
+    title: 'Welche Versicherungen haben Sie bereits?',
+    subtitle: 'So können wir Lücken in Ihrem bestehenden Schutz identifizieren.',
+    type: 'multi',
+    options: [
+      { label: '⚡ Privathaftpflichtversicherung', value: 'haftpflicht' },
+      { label: '💼 Berufsunfähigkeitsversicherung', value: 'bu' },
+      { label: '🏠 Hausratversicherung', value: 'hausrat' },
+      { label: '✈️ Auslandskrankenversicherung', value: 'ausland' },
+      { label: '👨‍👩‍👧 Risikolebensversicherung', value: 'risiko_leben' },
+      { label: '⚖️ Rechtsschutzversicherung', value: 'rechtsschutz' },
+      { label: '🦷 Zahnzusatzversicherung', value: 'zahn' },
+      { label: '🏡 Wohngebäudeversicherung', value: 'gebaeude' }
+    ]
+  }
+];
+
+let currentStep = 0;
+let answers = {};
+
+function renderQuestion() {
+  const q = questions[currentStep];
+  const total = questions.length;
+  document.getElementById('stepLabel').textContent = `Frage ${currentStep + 1} von ${total}`;
+  document.getElementById('progressBar').style.width = ((currentStep + 1) / total * 100) + '%';
+
+  let html = `<h2>${q.title}</h2>`;
+  if (q.subtitle) html += `<p class="q-subtitle">${q.subtitle}</p>`;
+
+  if (q.type === 'single') {
+    html += '<div class="options">';
+    q.options.forEach(opt => {
+      const sel = answers[q.id] === opt.value ? ' selected' : '';
+      html += `<button class="opt-btn${sel}" onclick="selectSingle('${q.id}','${opt.value}', this)">
+        <span class="opt-icon">${opt.icon}</span>${opt.label}
+      </button>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="checkbox-options">';
+    const existing = answers[q.id] || [];
+    q.options.forEach(opt => {
+      const chk = existing.includes(opt.value) ? ' checked' : '';
+      html += `<div class="chk-item${chk}" onclick="toggleCheck('${q.id}','${opt.value}', this)">
+        <div class="chk-box"></div>
+        <span>${opt.label}</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="nav-btns">';
+  if (currentStep > 0) html += `<button class="btn btn-secondary" onclick="prevStep()">← Zurück</button>`;
+  if (currentStep < total - 1) {
+    html += `<button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Weiter →</button>`;
+  } else {
+    html += `<button class="btn btn-primary" onclick="showResults()" style="background:var(--primary);">📊 Ergebnis anzeigen</button>`;
+  }
+  html += '</div>';
+
+  document.getElementById('questionCard').innerHTML = html;
+}
+
+function selectSingle(qId, value, el) {
+  answers[qId] = value;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  // Auto-advance after 300ms
+  setTimeout(() => {
+    if (currentStep < questions.length - 1) nextStep();
+  }, 350);
+}
+
+function toggleCheck(qId, value, el) {
+  if (!answers[qId]) answers[qId] = [];
+  const idx = answers[qId].indexOf(value);
+  if (idx > -1) {
+    answers[qId].splice(idx, 1);
+    el.classList.remove('checked');
+  } else {
+    answers[qId].push(value);
+    el.classList.add('checked');
+  }
+}
+
+function nextStep() {
+  if (currentStep < questions.length - 1) {
+    currentStep++;
+    renderQuestion();
+    document.getElementById('questionCard').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    renderQuestion();
+  }
+}
+
+function resetQuiz() {
+  currentStep = 0;
+  answers = {};
+  document.getElementById('resultTab').style.display = 'none';
+  showTab('quiz');
+  renderQuestion();
+}
+
+// ===== RECOMMENDATION ENGINE =====
+function generateRecommendations() {
+  const a = answers;
+  const existing = a.existing || [];
+  const extras = a.extras || [];
+  const recs = [];
+
+  // Helper
+  function add(name, icon, priority, reason, tags) {
+    const hasIt = existing.includes(tags);
+    recs.push({ name, icon, priority, reason, hasIt, tag: tags });
+  }
+
+  // 1. Pflichtversicherungen
+  recs.push({
+    name: 'Krankenversicherung',
+    icon: '🏥',
+    priority: 1,
+    reason: 'Gesetzliche Pflicht für alle Personen mit Wohnsitz in Deutschland (§ 193 VVG).',
+    hasIt: true, // everyone has it
+    tag: 'pflicht'
+  });
+
+  if (a.vehicle && a.vehicle !== 'none') {
+    recs.push({
+      name: 'Kfz-Haftpflichtversicherung',
+      icon: '🚗',
+      priority: 1,
+      reason: 'Gesetzliche Pflicht für jedes zugelassene Fahrzeug.',
+      hasIt: true,
+      tag: 'pflicht'
+    });
+  }
+
+  // 2. Essentiell
+  recs.push({
+    name: 'Privathaftpflichtversicherung',
+    icon: '⚡',
+    priority: 2,
+    reason: a.family === 'family' || a.family === 'partner'
+      ? 'Existenzschutz für Ihren gesamten Haushalt. Ein Familientarif reicht aus.'
+      : 'Die wichtigste freiwillige Versicherung. Schützt vor existenzbedrohenden Schadensersatzforderungen.',
+    hasIt: existing.includes('haftpflicht'),
+    tag: 'essential'
+  });
+
+  if (a.job !== 'retired') {
+    let buReason = 'Jeder 4. Beschäftigte wird berufsunfähig. Sichert Ihr Einkommen.';
+    if (a.age === 'young' || a.age === 'early_career')
+      buReason += ' Je jünger der Einstieg, desto günstiger die Beiträge!';
+    if (a.job === 'self_employed')
+      buReason += ' Als Selbständige/r haben Sie keinen gesetzlichen Schutz bei Berufsunfähigkeit.';
+    recs.push({
+      name: 'Berufsunfähigkeitsversicherung (BU)',
+      icon: '💼',
+      priority: 2,
+      reason: buReason,
+      hasIt: existing.includes('bu'),
+      tag: 'essential'
+    });
+  }
+
+  // 3. Sehr empfehlenswert
+  if (extras.includes('travel') || true) { // Recommend for everyone
+    recs.push({
+      name: 'Auslandskrankenversicherung',
+      icon: '✈️',
+      priority: 3,
+      reason: extras.includes('travel')
+        ? 'Als regelmäßige/r Reisende/r unverzichtbar. Ab ca. 8–15 €/Jahr – sehr günstig für den gebotenen Schutz.'
+        : 'Schon ab 8–15 €/Jahr. Deckt Behandlungskosten und Rücktransport bei Reisen ins Ausland.',
+      hasIt: existing.includes('ausland'),
+      tag: 'empfohlen'
+    });
+  }
+
+  const needsLife = (a.family === 'family' || a.family === 'single_parent' || a.family === 'partner' || extras.includes('loan'));
+  if (needsLife) {
+    let lifeReason = '';
+    if (a.family === 'single_parent') lifeReason = 'Als Alleinerziehende/r besonders wichtig: sichert die finanzielle Zukunft Ihres Kindes.';
+    else if (a.family === 'family') lifeReason = 'Schützt Ihre Familie finanziell im Todesfall – besonders wichtig für den Hauptverdiener.';
+    else if (extras.includes('loan')) lifeReason = 'Sichert die Tilgung Ihres Kredits bei Todesfall ab.';
+    else lifeReason = 'Sichert Ihren Partner finanziell ab.';
+    recs.push({
+      name: 'Risikolebensversicherung',
+      icon: '👨‍👩‍👧',
+      priority: 3,
+      reason: lifeReason,
+      hasIt: existing.includes('risiko_leben'),
+      tag: 'empfohlen'
+    });
+  }
+
+  // Hausrat
+  recs.push({
+    name: 'Hausratversicherung',
+    icon: '🏠',
+    priority: 3,
+    reason: 'Schützt Möbel, Elektronik und persönliche Gegenstände gegen Einbruch, Brand und Wasserschäden.',
+    hasIt: existing.includes('hausrat'),
+    tag: 'empfohlen'
+  });
+
+  // Wohngebäude
+  if (a.housing === 'condo' || a.housing === 'house') {
+    recs.push({
+      name: 'Wohngebäudeversicherung + Elementarschutz',
+      icon: '🏡',
+      priority: 2,
+      reason: 'Als Immobilienbesitzer unverzichtbar. Unbedingt mit Elementarschadenversicherung (Hochwasser, Starkregen) ergänzen!',
+      hasIt: existing.includes('gebaeude'),
+      tag: 'essential'
+    });
+  }
+
+  // Kinderinvalidität
+  if (a.family === 'family' || a.family === 'single_parent' || extras.includes('planning_kids')) {
+    recs.push({
+      name: 'Kinderinvaliditätsversicherung',
+      icon: '🧒',
+      priority: 3,
+      reason: 'Schützt Ihr Kind finanziell bei dauerhafter Behinderung durch Unfall oder Krankheit.',
+      hasIt: false,
+      tag: 'empfohlen'
+    });
+  }
+
+  // 4. Optional
+  recs.push({
+    name: 'Rechtsschutzversicherung',
+    icon: '⚖️',
+    priority: 4,
+    reason: a.housing === 'rent'
+      ? 'Kann bei Mietstreitigkeiten und Arbeitsrecht sinnvoll sein.'
+      : 'Übernimmt Anwalts- und Gerichtskosten bei Rechtsstreitigkeiten.',
+    hasIt: existing.includes('rechtsschutz'),
+    tag: 'optional'
+  });
+
+  recs.push({
+    name: 'Zahnzusatzversicherung',
+    icon: '🦷',
+    priority: 4,
+    reason: 'Ergänzt die GKV-Leistungen bei Zahnersatz. Besonders sinnvoll ab 30+.',
+    hasIt: existing.includes('zahn'),
+    tag: 'optional'
+  });
+
+  if (a.job === 'self_employed' || extras.includes('risky_hobby')) {
+    recs.push({
+      name: 'Private Unfallversicherung',
+      icon: '🤕',
+      priority: a.job === 'self_employed' ? 3 : 4,
+      reason: a.job === 'self_employed'
+        ? 'Als Selbständige/r haben Sie keinen gesetzlichen Unfallschutz – diese Versicherung ist besonders wichtig.'
+        : 'Sinnvoll bei risikoreichen Hobbys: leistet bei dauerhafter Invalidität durch Unfall.',
+      hasIt: false,
+      tag: a.job === 'self_employed' ? 'empfohlen' : 'optional'
+    });
+  }
+
+  if (a.vehicle && a.vehicle !== 'none') {
+    recs.push({
+      name: 'Kfz-Kaskoversicherung',
+      icon: '🚙',
+      priority: 4,
+      reason: 'Teilkasko bei älteren Fahrzeugen, Vollkasko bei Neuwagen oder Leasing empfohlen.',
+      hasIt: false,
+      tag: 'optional'
+    });
+  }
+
+  if (extras.includes('dog') || extras.includes('horse')) {
+    recs.push({
+      name: 'Tierhalterhaftpflicht',
+      icon: '🐾',
+      priority: extras.includes('dog') ? 2 : 3,
+      reason: extras.includes('dog')
+        ? 'In vielen Bundesländern Pflicht für Hundehalter. Deckt Schäden, die Ihr Hund verursacht.'
+        : 'Dringend empfohlen für Pferdehalter – deckt Personen- und Sachschäden.',
+      hasIt: false,
+      tag: extras.includes('dog') ? 'essential' : 'empfohlen'
+    });
+  }
+
+  // Sort by priority
+  recs.sort((a, b) => a.priority - b.priority);
+  return recs;
+}
+
+function showResults() {
+  const recs = generateRecommendations();
+  document.getElementById('resultTab').style.display = '';
+  showTab('result');
+
+  const groups = {
+    pflicht: { title: '🔴 Pflichtversicherungen', items: [] },
+    essential: { title: '🟠 Dringend empfohlen', items: [] },
+    empfohlen: { title: '🔵 Empfohlen für Ihre Situation', items: [] },
+    optional: { title: '🟣 Sinnvoll im Einzelfall', items: [] }
+  };
+
+  recs.forEach(r => {
+    if (groups[r.tag]) groups[r.tag].items.push(r);
+  });
+
+  let html = '';
+
+  // Summary
+  const missing = recs.filter(r => !r.hasIt && (r.tag === 'essential' || r.tag === 'empfohlen'));
+  if (missing.length > 0) {
+    html += `<div class="card" style="border-left-color:var(--warn);">
+      <h3>⚠️ ${missing.length} Versicherungslücke${missing.length > 1 ? 'n' : ''} erkannt</h3>
+      <p>${missing.map(m => m.name).join(', ')}</p>
+    </div>`;
+  } else {
+    html += `<div class="card" style="border-left-color:var(--accent);">
+      <h3>✅ Gut abgesichert!</h3>
+      <p>Sie haben die wichtigsten Versicherungen bereits abgeschlossen.</p>
+    </div>`;
+  }
+
+  for (const [tag, group] of Object.entries(groups)) {
+    if (group.items.length === 0) continue;
+
+    html += `<div class="result-section"><h3>${group.title}</h3>`;
+    group.items.forEach(r => {
+      const tagLabels = {
+        pflicht: '<span class="r-tag tag-pflicht">PFLICHT</span>',
+        essential: '<span class="r-tag tag-essential">DRINGEND</span>',
+        empfohlen: '<span class="r-tag tag-empfohlen">EMPFOHLEN</span>',
+        optional: '<span class="r-tag tag-optional">OPTIONAL</span>'
+      };
+
+      html += `<div class="result-card ${tag}">
+        <span class="r-icon">${r.icon}</span>
+        <div class="r-body">
+          <div class="r-name">${r.name}</div>
+          <div class="r-reason">${r.reason}</div>
+          ${tagLabels[r.tag] || ''}
+          ${r.hasIt ? '<div class="r-check">✓ Bereits vorhanden</div>' : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // Verzichtbar section
+  html += `<div class="result-section">
+    <h3>⚪ Meist verzichtbar</h3>
+    <div class="result-card skip">
+      <span class="r-icon">📱</span>
+      <div class="r-body">
+        <div class="r-name">Handy-, Brillen-, Reisegepäck-, Sterbegeld-, Insassenunfallversicherung</div>
+        <div class="r-reason">Grundsatz der Verbraucherzentrale: Große Risiken versichern, kleine Schäden selbst tragen.</div>
+        <span class="r-tag tag-skip">VERZICHTBAR</span>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('resultContent').innerHTML = html;
+}
+
+// ===== INIT =====
+renderQuestion();
+</script>
+</body>
+</html>
