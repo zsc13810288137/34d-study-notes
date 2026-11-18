@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Versicherungs-Bedarfsanalyse | §34d GewO</title>
+<title>Versicherungs-Bedarfsanalyse | Orientierung</title>
 <style>
   :root {
     --primary: #1a5276;
@@ -125,6 +125,8 @@
     transition: all 0.15s;
     text-align: center;
     font-size: 0.95rem;
+    font-family: inherit;
+    color: inherit;
   }
   .opt-btn:hover { border-color: var(--primary-light); background: #ebf5fb; }
   .opt-btn.selected { border-color: var(--primary); background: #d6eaf8; font-weight: 600; }
@@ -240,13 +242,24 @@
   .info-box { background: #ebf5fb; border-left: 4px solid var(--primary-light); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.88rem; }
   .info-box strong { color: var(--primary); }
 
-  /* Print styles */
+  /* Scenarios / Cover plan / Info modules */
+  .scenario { border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; margin-top: 1rem; }
+  .scenario h4 { margin-bottom: 0.4rem; color: var(--primary); font-size: 0.95rem; }
+  .plan-panel { margin-top: 1.25rem; padding: 1rem 1.2rem; border-radius: 10px; background: #f0f9f4; border: 1px solid #b7e4c7; }
+  .plan-panel h4 { color: #1e8449; margin-bottom: 0.5rem; }
+  .plan-panel ul, .info-list { margin: 0.4rem 0 0.6rem 1.2rem; font-size: 0.9rem; }
+  .plan-price { font-size: 1.15rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
+  .plan-small { font-size: 0.8rem; color: var(--text-light); margin-top: 0.4rem; }
+  .info-module h4 { margin: 1rem 0 0.3rem; color: var(--primary); }
+  .tab-btn:focus-visible, .btn:focus-visible, .btn-vertiefen:focus-visible, .opt-btn:focus-visible, .form-input:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 2px; }
+
+  /* Print styles: nur das Ergebnisprotokoll drucken */
   @media print {
-    .tabs, .header, .btn-vertiefen, .btn, .no-print { display: none !important; }
-    .section { display: block !important; max-width: 100%; }
-    #sec-protokoll { display: block !important; }
+    .tabs, .header, .btn-vertiefen, .btn, .no-print, .protokoll-actions { display: none !important; }
+    .section { display: none !important; }
+    #sec-protokoll { display: block !important; max-width: 100%; margin: 0; padding: 0; }
     .detail-panel { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
-    body { font-size: 11pt; }
+    body { font-size: 11pt; background: white; }
   }
 
   @media (max-width: 600px) {
@@ -260,22 +273,22 @@
 
 <div class="header">
   <h1>🛡️ Versicherungs-Bedarfsanalyse</h1>
-  <p>Finden Sie heraus, welchen Versicherungsschutz Sie wirklich brauchen — mit detaillierter Lückenanalyse und Beratungsprotokoll</p>
+  <p>Finden Sie heraus, welchen Versicherungsschutz Sie wirklich brauchen — mit detaillierter Lückenanalyse und Ergebnisprotokoll</p>
 </div>
 
-<div class="tabs">
-  <button class="tab-btn active" onclick="showTab('overview')">📋 Übersicht</button>
-  <button class="tab-btn" onclick="showTab('quiz')">🔍 Analyse</button>
-  <button class="tab-btn" onclick="showTab('result')" id="resultTab" style="display:none">📊 Ergebnis</button>
-  <button class="tab-btn" onclick="showTab('detail')" id="detailTab" style="display:none">🔬 Detailanalyse</button>
-  <button class="tab-btn" onclick="showTab('protokoll')" id="protokollTab" style="display:none">📋 Protokoll</button>
+<div class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="overview" onclick="showTab('overview')">📋 Übersicht</button>
+  <button class="tab-btn" data-tab="quiz" onclick="showTab('quiz')">🔍 Analyse</button>
+  <button class="tab-btn" data-tab="result" onclick="showTab('result')" id="resultTab" style="display:none">📊 Ergebnis</button>
+  <button class="tab-btn" data-tab="detail" onclick="showTab('detail')" id="detailTab" style="display:none">🔬 Vertiefung</button>
+  <button class="tab-btn" data-tab="protokoll" onclick="showTab('protokoll')" id="protokollTab" style="display:none">📋 Protokoll</button>
 </div>
 
 <!-- ====== ÜBERSICHT ====== -->
 <div class="section active" id="sec-overview">
   <div class="disclaimer">
-    <strong>⚠️ Hinweis gemäß § 34d GewO</strong>
-    Diese Bedarfsanalyse dient ausschließlich der ersten Orientierung und ersetzt keine individuelle Beratung durch einen zugelassenen Versicherungsvermittler. Die Empfehlungen basieren auf allgemeinen Richtlinien der Verbraucherzentralen (Stand 2026).
+    <strong>⚠️ Wichtiger Hinweis</strong>
+    Diese Bedarfsanalyse dient ausschließlich der ersten Orientierung. Sie ist keine Versicherungs- oder Anlageberatung und ersetzt keine individuelle Beratung durch einen zugelassenen Versicherungsvermittler oder Versicherungsberater. Die Empfehlungen beruhen auf allgemeinen Faustregeln und vereinfachten Annahmen (Stand 11/2026). Beitragsangaben sind Orientierungswerte, keine Angebote.
   </div>
 
   <div class="tree-container">
@@ -340,32 +353,85 @@
   <h2 style="text-align:center; margin-bottom:1.5rem;">📊 Ihre persönliche Empfehlung</h2>
   <div id="resultContent"></div>
   <div style="text-align:center; margin: 1.5rem 0;" class="no-print">
+    <button class="btn btn-accent" onclick="showTab('protokoll')">📋 Ergebnisprotokoll erstellen</button>
     <button class="btn btn-secondary" onclick="resetQuiz()">🔄 Neue Analyse</button>
   </div>
 </div>
 
 <!-- ====== DETAILANALYSE ====== -->
 <div class="section" id="sec-detail">
-  <h2 style="text-align:center; margin-bottom: 0.5rem;">🔬 Vertiefte Lückenanalyse</h2>
-  <p style="text-align:center; color: var(--text-light); margin-bottom: 1.5rem;">Geben Sie Ihre konkreten Zahlen ein für eine präzise Bedarfsberechnung</p>
+  <h2 style="text-align:center; margin-bottom: 0.5rem;">🔬 Vertiefung</h2>
+  <p style="text-align:center; color: var(--text-light); margin-bottom: 1.5rem;">Geben Sie Ihre konkreten Zahlen ein oder lesen Sie vertiefende Informationen</p>
   <div id="detailContent"></div>
 </div>
 
-<!-- ====== BERATUNGSPROTOKOLL ====== -->
+<!-- ====== ERGEBNISPROTOKOLL ====== -->
 <div class="section" id="sec-protokoll">
   <div id="protokollContent"></div>
 </div>
 
 <script>
+// ===== KONSTANTEN & PARAMETER (Stand 11/2026) =====
+const CONSTANTS_2026 = {
+  stand: '11/2026',
+  durchschnittsentgelt: 51944,   // vorläufiges Durchschnittsentgelt GRV
+  rentenwert: 42.52,             // aktueller Rentenwert (West), €/Entgeltpunkt
+  bbgRV: 101400,                 // Beitragsbemessungsgrenze RV (West), €/Jahr
+  ruerupMax: 30826,              // Höchstbetrag Basisrente (Sonderausgaben), €/Jahr
+  bavSvFreiJahr: 4056,           // 4 % BBG RV  (= 338 €/Monat)
+  bavSteuerfreiJahr: 8112,       // 8 % BBG RV  (= 676 €/Monat)
+  kvPvAbzug: 0.12,               // vereinfachter Abzug KV/PV auf Rente
+  emZugangsfaktor: 0.892,        // max. Abschlag bei Erwerbsminderungsrente
+  emNettoFaktor: 0.88,           // netto = brutto × 0,88 (nur KV/PV, keine Steuer)
+  zurechnungsEnde: 67,
+  inflation: 2, renditeAnsparen: 4, renditeRente: 2, rentenbezugJahre: 20 // Standardannahmen in %
+};
+
+// Orientierungswerte (Beitrag in €/Monat) – keine Angebote, keine Produkte
+const PREMIUM_TABLES = {
+  stand: '11/2026',
+  fixText: 'Orientierungswerte, Stand 11/2026. Keine Angebote und keine Zusage eines Versicherers. Der tatsächliche Beitrag hängt von Anbieter, Tarif, Gesundheitszustand, Beruf, Vertragsdetails und Selbstbeteiligung ab.',
+  phv: { single: [3, 6], family: [5, 9] },                       // €/Monat bei ≥ 10 Mio. € Deckung
+  hausratPromille: [1.2, 2.4],                                   // € je 1.000 € VS und Jahr (ohne Elementar)
+  buPer1000: [                                                   // €/Monat je 1.000 € BU-Rente, Büro, Endalter 67
+    { maxAge: 25, v: [30, 50] }, { maxAge: 30, v: [38, 62] }, { maxAge: 35, v: [48, 80] },
+    { maxAge: 40, v: [60, 100] }, { maxAge: 45, v: [75, 125] }, { maxAge: 50, v: [95, 155] },
+    { maxAge: 99, v: [120, 200] }
+  ],
+  buRisk: { buero: 1.0, gemischt: 1.3, koerperlich: 1.8, hochrisiko: 2.4 },
+  buStatus: { employee: 1.0, civil_servant: 1.0, self_employed: 1.15, student: 0.9, retired: 1.0 },
+  risikoPer100k: [                                               // €/Monat je 100.000 € Summe, 20 J., Nichtraucher
+    { maxAge: 30, v: [3, 6] }, { maxAge: 35, v: [4, 7] }, { maxAge: 40, v: [5, 9] },
+    { maxAge: 45, v: [8, 14] }, { maxAge: 50, v: [12, 22] }, { maxAge: 55, v: [20, 35] },
+    { maxAge: 99, v: [32, 60] }
+  ],
+  unfallPer100k: [5, 10],                                        // €/Monat je 100.000 € Grundsumme bei 350 %
+  unfallProgFactor: { 1: 0.6, 225: 0.8, 350: 1.0, 500: 1.2 }
+};
+
+// Progression Unfallversicherung: Faktoren je Invaliditätsabschnitt (0–25 %, 25–50 %, >50 %)
+const PROGRESSION = {
+  1:   { label: 'Keine (100 %)', m: [1, 1, 1] },
+  225: { label: '225 %', m: [1, 2, 3] },
+  350: { label: '350 %', m: [1, 3, 5] },
+  500: { label: '500 %', m: [1, 5, 7] }
+};
+
 // ===== STATE =====
 const answers = {};
 let currentStep = 0;
 const detailData = {};
+const infoRead = new Set();
+
+const fmt = n => Math.round(n).toLocaleString('de-DE');
+const eur = n => fmt(n) + ' €';
+const numVal = (id, def = 0) => { const el = document.getElementById(id); if (!el) return def; const v = parseFloat(el.value); return isNaN(v) ? def : v; };
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const questions = [
   {
     id: 'age', title: 'Wie alt sind Sie?', sub: 'Ihr Alter beeinflusst die Priorität bestimmter Versicherungen.',
-    type: 'single',
+    short: 'Alter', type: 'single',
     options: [
       { value: 'young', label: 'Unter 25', icon: '🎓' },
       { value: 'early_career', label: '25–35', icon: '💼' },
@@ -376,7 +442,7 @@ const questions = [
   },
   {
     id: 'family', title: 'Wie ist Ihre Familiensituation?', sub: 'Bestimmt den Absicherungsbedarf für Angehörige.',
-    type: 'single',
+    short: 'Familiensituation', type: 'single',
     options: [
       { value: 'single', label: 'Single', icon: '👤' },
       { value: 'partner', label: 'Partnerschaft', icon: '👫' },
@@ -386,7 +452,7 @@ const questions = [
   },
   {
     id: 'job', title: 'Was ist Ihr Berufsstatus?', sub: 'Bestimmt den gesetzlichen Grundschutz und zusätzlichen Bedarf.',
-    type: 'single',
+    short: 'Berufsstatus', type: 'single',
     options: [
       { value: 'employee', label: 'Angestellt', icon: '🏢' },
       { value: 'civil_servant', label: 'Beamter', icon: '🏛️' },
@@ -397,7 +463,7 @@ const questions = [
   },
   {
     id: 'housing', title: 'Wie wohnen Sie?', sub: 'Wichtig für Gebäude- und Hausratversicherung.',
-    type: 'single',
+    short: 'Wohnsituation', type: 'single',
     options: [
       { value: 'rent', label: 'Zur Miete', icon: '🏢' },
       { value: 'condo', label: 'Eigentumswohnung', icon: '🏠' },
@@ -407,7 +473,7 @@ const questions = [
   },
   {
     id: 'vehicle', title: 'Besitzen Sie ein Fahrzeug?', sub: 'Bestimmt den Kfz-Versicherungsbedarf.',
-    type: 'single',
+    short: 'Fahrzeug', type: 'single',
     options: [
       { value: 'none', label: 'Kein Fahrzeug', icon: '🚶' },
       { value: 'car', label: 'Auto', icon: '🚗' },
@@ -417,10 +483,10 @@ const questions = [
   },
   {
     id: 'existing', title: 'Welche Versicherungen haben Sie bereits?', sub: 'Mehrfachauswahl möglich.',
-    type: 'multi',
+    short: 'Bestehende Versicherungen', type: 'multi',
     options: [
       { value: 'haftpflicht', label: 'Privathaftpflicht', icon: '⚡' },
-      { value: 'bu', label: 'Berufsunfähigkeit', icon: '💼' },
+      { value: 'bu', label: 'Berufsunfähigkeit / Dienstunfähigkeit', icon: '💼' },
       { value: 'hausrat', label: 'Hausrat', icon: '🏠' },
       { value: 'ausland', label: 'Auslandskranken', icon: '✈️' },
       { value: 'risiko_leben', label: 'Risikoleben', icon: '👨‍👩‍👧' },
@@ -428,12 +494,16 @@ const questions = [
       { value: 'zahn', label: 'Zahnzusatz', icon: '🦷' },
       { value: 'gebaeude', label: 'Wohngebäude', icon: '🏡' },
       { value: 'unfall', label: 'Unfallversicherung', icon: '🤕' },
-      { value: 'altersvorsorge', label: 'Private Altersvorsorge', icon: '🏦' }
+      { value: 'altersvorsorge', label: 'Private Altersvorsorge', icon: '🏦' },
+      { value: 'ktg', label: 'Krankentagegeld', icon: '🩺' },
+      { value: 'pflege', label: 'Pflegezusatz', icon: '🧓' },
+      { value: 'bhv', label: 'Berufshaftpflicht', icon: '🧰' },
+      { value: 'haus_grund', label: 'Haus-/Grundbesitzerhaftpflicht', icon: '🏘️' }
     ]
   },
   {
     id: 'extras', title: 'Besondere Umstände?', sub: 'Mehrfachauswahl möglich.',
-    type: 'multi',
+    short: 'Besondere Umstände', type: 'multi',
     options: [
       { value: 'travel', label: 'Reise häufig', icon: '✈️' },
       { value: 'risky_hobby', label: 'Risikosport', icon: '⛷️' },
@@ -445,8 +515,20 @@ const questions = [
   }
 ];
 
-// ===== TAB NAVIGATION =====
-// (single definition at bottom of file, includes protokoll logic)
+function labelOf(qId, value) {
+  const q = questions.find(x => x.id === qId);
+  const o = q && q.options.find(x => x.value === value);
+  return o ? o.label : '—';
+}
+function labelsOf(qId, arr) {
+  return (arr || []).map(v => labelOf(qId, v)).join(', ');
+}
+function ageFromAnswers() {
+  return { young: 23, early_career: 30, mid_career: 43, senior: 58, retired: 68 }[answers.age] || 35;
+}
+function tableLookup(table, age) {
+  return (table.find(r => age <= r.maxAge) || table[table.length - 1]).v;
+}
 
 // ===== QUIZ ENGINE =====
 function renderQuestion() {
@@ -456,11 +538,9 @@ function renderQuestion() {
 
   let html = `<div class="q-title">${q.title}</div><div class="q-sub">${q.sub}</div><div class="opt-grid">`;
   q.options.forEach(o => {
-    const sel = q.type === 'multi'
-      ? (answers[q.id] || []).includes(o.value) ? 'selected' : ''
-      : answers[q.id] === o.value ? 'selected' : '';
+    const isSel = q.type === 'multi' ? (answers[q.id] || []).includes(o.value) : answers[q.id] === o.value;
     const fn = q.type === 'multi' ? `toggleCheck('${q.id}','${o.value}',this)` : `selectSingle('${q.id}','${o.value}',this)`;
-    html += `<div class="opt-btn ${sel}" onclick="${fn}"><span class="opt-icon">${o.icon}</span>${o.label}</div>`;
+    html += `<button type="button" class="opt-btn ${isSel ? 'selected' : ''}" aria-pressed="${isSel}" onclick="${fn}"><span class="opt-icon">${o.icon}</span>${o.label}</button>`;
   });
   html += '</div>';
 
@@ -479,15 +559,16 @@ function renderQuestion() {
 
 function selectSingle(qId, value, el) {
   answers[qId] = value;
-  el.parentElement.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  el.parentElement.querySelectorAll('.opt-btn').forEach(b => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
   el.classList.add('selected');
+  el.setAttribute('aria-pressed', 'true');
 }
 
 function toggleCheck(qId, value, el) {
   if (!answers[qId]) answers[qId] = [];
   const idx = answers[qId].indexOf(value);
-  if (idx > -1) { answers[qId].splice(idx, 1); el.classList.remove('selected'); }
-  else { answers[qId].push(value); el.classList.add('selected'); }
+  if (idx > -1) { answers[qId].splice(idx, 1); el.classList.remove('selected'); el.setAttribute('aria-pressed', 'false'); }
+  else { answers[qId].push(value); el.classList.add('selected'); el.setAttribute('aria-pressed', 'true'); }
 }
 
 function nextStep() {
@@ -499,6 +580,7 @@ function prevStep() {
 function resetQuiz() {
   Object.keys(answers).forEach(k => delete answers[k]);
   Object.keys(detailData).forEach(k => delete detailData[k]);
+  infoRead.clear();
   currentStep = 0;
   document.getElementById('resultTab').style.display = 'none';
   document.getElementById('detailTab').style.display = 'none';
@@ -507,17 +589,197 @@ function resetQuiz() {
   showTab('quiz');
 }
 
+// ===== INFO-MODULE (reine Informationsseiten) =====
+const INFO_MODULES = {
+  gkv: {
+    icon: '🏥', title: 'Krankenversicherung (GKV / PKV)',
+    intro: 'Seit 2009 besteht in Deutschland eine Versicherungspflicht in der Krankenversicherung (§ 193 VVG, § 5 SGB V). Sie haben die Wahl zwischen gesetzlicher (GKV) und privater Krankenversicherung (PKV), sofern Sie nicht versicherungspflichtig in der GKV sind.',
+    points: ['GKV: einkommensabhängiger Beitrag (allgemeiner Satz 14,6 % plus kassenindividueller Zusatzbeitrag, je zur Hälfte mit dem Arbeitgeber), Familienversicherung für Kinder und nicht erwerbstätige Ehepartner möglich.',
+      'PKV: risikoabhängiger Beitrag, Leistungen vertraglich festgelegt, Rückkehr in die GKV später oft schwierig. Nur für bestimmte Gruppen zugänglich (z. B. Beamte, Selbständige, Angestellte oberhalb der Versicherungspflichtgrenze).',
+      'Beamte erhalten Beihilfe und benötigen meist nur eine ergänzende Restkostenversicherung.'],
+    beitrag: 'Beitrag hängt von Einkommen (GKV) bzw. Alter, Gesundheit und Tarif (PKV) ab.',
+    hint: 'Ein Wechsel zwischen den Systemen sollte gut überlegt und unabhängig beraten werden.'
+  },
+  kfz: {
+    icon: '🚗', title: 'Kfz-Haftpflichtversicherung',
+    intro: 'Für jedes zugelassene Fahrzeug gesetzlich vorgeschrieben (Pflichtversicherungsgesetz). Sie reguliert Schäden, die Sie mit dem Fahrzeug anderen zufügen.',
+    points: ['Gesetzliche Mindestdeckung: 7,5 Mio. € für Personenschäden, 1,22 Mio. € für Sachschäden, 50.000 € für Vermögensschäden. Empfohlen werden mindestens 50 Mio. €, besser 100 Mio. € pauschal.',
+      'Beitrag richtet sich u. a. nach Schadenfreiheitsklasse, Regionalklasse, Typklasse, Jahresfahrleistung und Fahrerkreis.',
+      'Ohne Versicherungsschutz drohen Bußgeld, Zulassungsentzug und im Schadenfall persönliche Haftung.'],
+    beitrag: 'Stark abhängig von Fahrzeug und Schadenfreiheitsklasse; ein Vergleich lohnt sich jährlich (Stichtag meist 30.11.).',
+    hint: 'Bei Kasko-Wechsel auf Kündigungsfristen und Schadenfreiheitsrabatt achten.'
+  },
+  wohngebaeude: {
+    icon: '🏡', title: 'Wohngebäudeversicherung + Elementarschutz',
+    intro: 'Schützt das Gebäude selbst gegen Feuer, Leitungswasser, Sturm und Hagel. Elementarschäden (Überschwemmung, Starkregen, Rückstau, Erdrutsch, Schneedruck) müssen gesondert eingeschlossen werden.',
+    points: ['Eigenheim: Eigentümer schließt die Wohngebäudeversicherung selbst ab. Wichtig: Elementarschutz, Unterversicherungsverzicht, Ableitungsrohre auf dem Grundstück.',
+      'Eigentumswohnung (WEG): Die Wohngebäudeversicherung wird in der Regel über die Eigentümergemeinschaft/Hausverwaltung abgeschlossen. Prüfen Sie den Versicherungsumfang (inkl. Elementar) und bei Bedarf Ihr Sondereigentum (Innenausbau) sowie Ihre Hausrat- und Privathaftpflicht.',
+      'Der Versicherungswert orientiert sich an Wohnfläche und Baupreisen (gleitender Neuwert).'],
+    beitrag: 'Stark abhängig von Lage (Zürs-Zone), Baujahr, Wohnfläche und Ausstattung; Elementarschutz erhöht den Beitrag.',
+    hint: 'Eine Lücke bei Elementarschäden kann existenzbedrohend sein.'
+  },
+  ausland: {
+    icon: '✈️', title: 'Auslandsreise-Krankenversicherung',
+    intro: 'Die GKV leistet im Ausland nur eingeschränkt (EU: nach inländischen Sätzen) und zahlt keinen Rücktransport. Eine Auslandsreise-Krankenversicherung schließt diese Lücke.',
+    points: ['Wichtig: Rücktransport „medizinisch sinnvoll", nicht nur „medizinisch notwendig".',
+      'Laufzeit: Einzelreise oder Jahresvertrag, häufig mit Beschränkung der Reisedauer je Reise (z. B. 42 oder 56 Tage).',
+      'Leistungen ohne Summenbegrenzung und ohne Selbstbeteiligung bevorzugen.'],
+    beitrag: 'Jahresverträge für Einzelpersonen häufig ca. 8–15 €/Jahr, Familien ca. 15–30 €/Jahr.',
+    hint: 'Auch kurze Urlaubsreisen in EU-Länder sollten abgesichert sein.'
+  },
+  kinderinvalid: {
+    icon: '🧒', title: 'Kinderinvaliditätsversicherung',
+    intro: 'Zahlt eine Kapitalleistung oder Rente, wenn ein Kind durch Unfall oder Krankheit dauerhaft behindert wird – unabhängig von späterer Berufstätigkeit.',
+    points: ['Kinder sind über die gesetzliche Unfallversicherung nur in Kita, Schule und auf dem Weg dorthin geschützt – nicht in der Freizeit.',
+      'Empfohlen: Absicherung auch von Krankheiten, nicht nur von Unfällen; hohe Summe oder Rentenoption.',
+      'Alternative oder Ergänzung: eine Kinder-Unfallversicherung (günstiger, aber ohne Krankheiten).'],
+    beitrag: 'Je nach Leistungsumfang ca. 10–30 €/Monat (Orientierung).',
+    hint: 'Ein früher Abschluss sichert Leistungen vor möglichen Vorerkrankungen.'
+  },
+  rechtsschutz: {
+    icon: '⚖️', title: 'Rechtsschutzversicherung',
+    intro: 'Übernimmt Anwalts- und Gerichtskosten. Sinnvoll vor allem bei Arbeits-, Verkehrs- und Mietrecht.',
+    points: ['Bausteine: Privat, Beruf, Verkehr, Wohnen – je nach Lebenssituation kombinierbar.',
+      'Wartezeiten (häufig 3 Monate) und Selbstbeteiligung beachten; bereits bestehende Streitigkeiten sind nicht versichert.',
+      'Beratungsrechtsschutz (Erstberatung) bietet oft ein gutes Preis-Leistungs-Verhältnis.'],
+    beitrag: 'Je nach Bausteinen ca. 20–50 €/Monat (Orientierung).',
+    hint: 'Prüfen Sie, ob Verkehrsrechtsschutz über eine bestehende Police bereits abgedeckt ist.'
+  },
+  zahn: {
+    icon: '🦷', title: 'Zahnzusatzversicherung',
+    intro: 'Erhöht die Erstattung bei Zahnersatz (Kronen, Brücken, Implantate) und verbessert die Leistung bei Zahnbehandlung und professioneller Zahnreinigung.',
+    points: ['Wichtig: Wartezeiten und jährliche Leistungsbegrenzungen in den ersten Jahren (Zahnstaffel).',
+      'Bereits geplante oder angeratene Behandlungen sind in der Regel nicht versichert.',
+      'Erstattungsquote für Zahnersatz inkl. GKV-Festzuschuss auf 80–90 % der Kosten prüfen.'],
+    beitrag: 'Je nach Alter und Leistungsumfang ca. 15–40 €/Monat (Orientierung).',
+    hint: 'Sinnvoll, wenn Sie Wert auf hochwertigen Zahnersatz legen.'
+  },
+  kasko: {
+    icon: '🚙', title: 'Kfz-Kaskoversicherung',
+    intro: 'Teilkasko deckt u. a. Diebstahl, Glasbruch, Wildschäden und Naturgefahren. Vollkasko ergänzt selbst verschuldete Unfälle und Vandalismus.',
+    points: ['Neue oder wertvolle Fahrzeuge: Vollkasko sinnvoll. Ältere Fahrzeuge: Teilkasko oder nur Haftpflicht.',
+      'Selbstbeteiligung senkt den Beitrag; Neuwert-/Kaufpreisentschädigung beachten.',
+      'Werkstattbindung kann den Beitrag senken, schränkt aber die Wahl ein.'],
+    beitrag: 'Stark abhängig von Fahrzeug, Typklasse, Region und Selbstbeteiligung.',
+    hint: 'Faustregel: Ab Fahrzeugalter 8–10 Jahren lohnt Vollkasko meist nicht mehr.'
+  },
+  tierhalter: {
+    icon: '🐾', title: 'Tierhalterhaftpflicht',
+    intro: 'Hunde- und Pferdehalter haften verschuldensunabhängig (Gefährdungshaftung nach § 833 BGB). Die private Haftpflicht deckt Hunde und Pferde in der Regel nicht.',
+    points: ['Für Hunde in vielen Bundesländern gesetzlich vorgeschrieben (Landesrecht).',
+      'Für Pferde: Fremdreiter, Reitbeteiligungen und Turniere gesondert prüfen.',
+      'Kleintiere (z. B. Katzen) sind meist über die Privathaftpflicht mitversichert.'],
+    beitrag: 'Hund ca. 5–10 €/Monat, Pferd ca. 8–20 €/Monat (Orientierung).',
+    hint: 'Auf hohe Deckungssumme (mindestens 10 Mio. €) achten.'
+  },
+  ktg: {
+    icon: '🩺', title: 'Krankentagegeldversicherung (Selbständige)',
+    intro: 'Selbständige haben in der GKV ohne Wahltarif keinen Anspruch auf Krankengeld. Das Krankentagegeld ersetzt Einkommen bei längerer Krankheit, bevor eine BU greift.',
+    points: ['Tagegeld orientiert sich am Nettoeinkommen: Tagegeld ≈ Monatsnetto ÷ 30.',
+      'Karenzzeit (häufig ab dem 15., 29., 43. oder 92. Tag) beeinflusst den Beitrag stark; laufende Betriebskosten gesondert absichern.',
+      'GKV-Versicherte können ein Krankengeld-Wahltarif der Kasse nutzen; PKV-Versicherte benötigen ein privates Krankentagegeld.'],
+    beitrag: 'Als Richtwert ca. 0,50–1,00 € Monatsbeitrag je 1 € Tagegeld (abhängig von Alter und Karenzzeit).',
+    hint: 'Das Krankentagegeld endet spätestens mit Eintritt der Berufsunfähigkeit.'
+  },
+  haus_grund: {
+    icon: '🏘️', title: 'Haus- und Grundbesitzerhaftpflicht',
+    intro: 'Eigentümer haften für Schäden, die von Gebäude und Grundstück ausgehen (z. B. Streupflicht, herabfallende Dachziegel, Baumschäden). Die Privathaftpflicht deckt dies nicht.',
+    points: ['Eigenheim: Absicherung von Gebäude und Grundstück erforderlich; bei Bauvorhaben zusätzlich Bauherrenhaftpflicht prüfen.',
+      'Eigentumswohnung: Das Gemeinschaftseigentum ist in der Regel über die WEG-Police abgedeckt; bei vermieteten Einheiten Haftpflicht des Vermieters prüfen.',
+      'Vermietete Objekte: Mietausfälle und Vermieterrechtsschutz separat betrachten.'],
+    beitrag: 'Je nach Objekt ca. 3–7 €/Monat für ein Einfamilienhaus (Orientierung).',
+    hint: 'Oft als Baustein der Wohngebäudeversicherung erhältlich.'
+  },
+  pflege: {
+    icon: '🧓', title: 'Pflegezusatzversicherung',
+    intro: 'Die gesetzliche Pflegeversicherung ist eine Teilkaskoversicherung. Je nach Pflegegrad und Pflegeform bleibt ein erheblicher Eigenanteil.',
+    points: ['Pflegetagegeld: feste Leistung je Pflegegrad, frei verwendbar. Pflegekosten- und Pflegerentenvarianten gibt es ebenfalls.',
+      'Staatlich geförderte Variante („Pflege-Bahr"): Zulage von 5 €/Monat bei einem Mindestbeitrag von 10 €/Monat, keine Gesundheitsprüfung, aber begrenzte Leistung.',
+      'Je früher der Abschluss, desto günstiger; Gesundheitsfragen beachten.'],
+    beitrag: 'Beitrag stark altersabhängig, etwa 15–120 €/Monat (Orientierung).',
+    hint: 'Eigenanteil im Pflegeheim und Pflegedienst-Kosten regional unterschiedlich.'
+  },
+  bhv: {
+    icon: '🧰', title: 'Berufshaftpflichtversicherung',
+    intro: 'Deckt Schäden, die Sie in Ausübung Ihrer beruflichen Tätigkeit Dritten zufügen (Personen-, Sach- und Vermögensschäden). Die private Haftpflicht gilt dafür nicht.',
+    points: ['Für manche Berufsgruppen gesetzlich vorgeschrieben (z. B. Heilberufe, Rechts- und Steuerberatung, Architekten).',
+      'Reine Vermögensschäden (z. B. Beratungsfehler) sind oft der größte Risikofaktor und müssen ausdrücklich eingeschlossen sein.',
+      'Vertrag auf Tätigkeitsbeschreibung, Umsatz und Mitarbeiterzahl abstimmen.'],
+    beitrag: 'Je nach Beruf und Umsatz etwa 10–60 €/Monat oder mehr (Orientierung).',
+    hint: 'Eine genaue Tätigkeitsbeschreibung vermeidet Streit im Schadenfall.'
+  },
+  handy: {
+    icon: '📱', title: 'Handyversicherung', skip: true,
+    intro: 'Deckt Display- und Wasserschäden sowie Diebstahl am Smartphone.',
+    points: ['Beiträge summieren sich über die Laufzeit schnell auf den Gerätewert.', 'Selbstbeteiligung und Ausschlüsse (z. B. „einfacher Diebstahl") schränken den Nutzen ein.'],
+    beitrag: 'Oft 5–15 €/Monat.', hint: 'Besser: Rücklagen bilden oder Hausrat mit Elektronikbaustein prüfen.'
+  },
+  brille: {
+    icon: '👓', title: 'Brillenversicherung', skip: true,
+    intro: 'Erstattet Brillenschäden oder -verlust.',
+    points: ['Der Schaden ist gut kalkulierbar und selbst tragbar.', 'Zusatzleistungen der Krankenkasse oder Tarife mit Brillenzuschuss prüfen.'],
+    beitrag: 'Gering, aber meist nicht lohnend.', hint: 'Kleine Schäden besser selbst tragen.'
+  },
+  reisegepaeck: {
+    icon: '🧳', title: 'Reisegepäckversicherung', skip: true,
+    intro: 'Zahlt bei Verlust oder Beschädigung von Reisegepäck.',
+    points: ['Erstattung meist stark eingeschränkt (Zeitwert, Höchstsummen, Obliegenheiten).', 'Teilweise über Hausrat (Außenversicherung) oder Kreditkarte abgedeckt.'],
+    beitrag: 'Oft als Reisepaket 5–15 €.', hint: 'Prüfen Sie vorhandene Absicherung, bevor Sie zusätzlich abschließen.'
+  },
+  sterbegeld: {
+    icon: '🕊️', title: 'Sterbegeldversicherung', skip: true,
+    intro: 'Zahlt einen festen Betrag zur Deckung der Bestattungskosten.',
+    points: ['Beiträge insgesamt oft höher als die ausgezahlte Summe; Kosteninflation und Verwaltungskosten beachten.', 'Alternative: eigene Rücklage oder Bestattungsvorsorge-Treuhandkonto.'],
+    beitrag: 'Stark altersabhängig.', hint: 'Meist wirtschaftlich unattraktiv.'
+  },
+  insassen: {
+    icon: '🚘', title: 'Insassenunfallversicherung', skip: true,
+    intro: 'Leistet bei Unfällen mit dem Fahrzeug für alle Insassen.',
+    points: ['Eine allgemeine private Unfallversicherung deckt dies bereits weltweit ab.', 'Insassen haben im Regelfall Ansprüche gegen die Kfz-Haftpflicht des Unfallverursachers.'],
+    beitrag: 'Gering, aber meist redundant.', hint: 'Besser: eine gute Unfallversicherung für Personen.'
+  }
+};
+
+const SKIP_ITEMS = [
+  { key: 'handy', name: 'Handyversicherung', icon: '📱' },
+  { key: 'brille', name: 'Brillenversicherung', icon: '👓' },
+  { key: 'reisegepaeck', name: 'Reisegepäckversicherung', icon: '🧳' },
+  { key: 'sterbegeld', name: 'Sterbegeldversicherung', icon: '🕊️' },
+  { key: 'insassen', name: 'Insassenunfallversicherung', icon: '🚘' }
+];
+
+function renderInfo(key) {
+  const m = INFO_MODULES[key];
+  if (!m) return '';
+  infoRead.add(key);
+  return `
+    <div class="detail-panel info-module">
+      <h3>${m.icon} ${m.title}</h3>
+      <div class="info-box">${m.intro}</div>
+      <h4>Worauf es ankommt</h4>
+      <ul class="info-list">${m.points.map(p => `<li>${p}</li>`).join('')}</ul>
+      <h4>Beitrag (Orientierung)</h4>
+      <p style="font-size:0.9rem;">${m.beitrag}</p>
+      <p class="plan-small">${PREMIUM_TABLES.fixText}</p>
+      <div class="info-box" style="margin-top:1rem;"><strong>Tipp:</strong> ${m.hint}</div>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn btn-secondary" onclick="showTab('result')">← Zurück zum Ergebnis</button>
+    </div>`;
+}
+
 // ===== RECOMMENDATION ENGINE =====
 function generateRecommendations() {
   const a = answers;
   const existing = a.existing || [];
   const extras = a.extras || [];
   const recs = [];
+  const C = CONSTANTS_2026;
 
   // Pflicht
-  recs.push({ name: 'Krankenversicherung', icon: '🏥', priority: 1, reason: 'Gesetzliche Pflicht (§ 193 VVG).', hasIt: true, tag: 'pflicht', detailModule: null });
+  recs.push({ name: 'Krankenversicherung', icon: '🏥', priority: 1, reason: 'Gesetzliche Pflicht (§ 193 VVG).', hasIt: true, tag: 'pflicht', detailModule: 'gkv' });
   if (a.vehicle && a.vehicle !== 'none') {
-    recs.push({ name: 'Kfz-Haftpflichtversicherung', icon: '🚗', priority: 1, reason: 'Gesetzliche Pflicht für jedes zugelassene Fahrzeug.', hasIt: true, tag: 'pflicht', detailModule: null });
+    recs.push({ name: 'Kfz-Haftpflichtversicherung', icon: '🚗', priority: 1, reason: 'Gesetzliche Pflicht für jedes zugelassene Fahrzeug.', hasIt: true, tag: 'pflicht', detailModule: 'kfz' });
   }
 
   // Essential
@@ -530,18 +792,32 @@ function generateRecommendations() {
   });
 
   if (a.job !== 'retired') {
-    let buReason = 'Jeder 4. wird berufsunfähig. Sichert Ihr Einkommen.';
-    if (a.age === 'young' || a.age === 'early_career') buReason += ' Je jünger, desto günstiger!';
-    if (a.job === 'self_employed') buReason += ' Ohne gesetzlichen Schutz bei BU.';
-    recs.push({ name: 'Berufsunfähigkeitsversicherung (BU)', icon: '💼', priority: 2, reason: buReason, hasIt: existing.includes('bu'), tag: 'essential', detailModule: 'bu' });
+    if (a.job === 'civil_servant') {
+      recs.push({
+        name: 'Dienstunfähigkeitsversicherung (DU)', icon: '💼', priority: 2,
+        reason: 'Beamte erhalten erst nach 5 Dienstjahren Ruhegehalt; davor und bei Entlassung drohen Lücken. DU-Klausel oder eine BU mit Dienstunfähigkeitsklausel schließt sie. Bei Dienstunfähigkeit ersetzt das Ruhegehalt nur einen Teil des Einkommens.',
+        hasIt: existing.includes('bu'), tag: 'essential', detailModule: 'bu'
+      });
+    } else {
+      let buReason = 'Jeder 4. wird berufsunfähig. Sichert Ihr Einkommen.';
+      if (a.age === 'young' || a.age === 'early_career') buReason += ' Je jünger, desto günstiger!';
+      if (a.job === 'self_employed') buReason += ' Ohne gesetzlichen Schutz bei BU.';
+      recs.push({ name: 'Berufsunfähigkeitsversicherung (BU)', icon: '💼', priority: 2, reason: buReason, hasIt: existing.includes('bu'), tag: 'essential', detailModule: 'bu' });
+    }
   }
 
   if (a.housing === 'condo' || a.housing === 'house') {
-    recs.push({ name: 'Wohngebäudeversicherung + Elementarschutz', icon: '🏡', priority: 2, reason: 'Unverzichtbar als Immobilienbesitzer. Unbedingt mit Elementarschadenversicherung!', hasIt: existing.includes('gebaeude'), tag: 'essential', detailModule: null });
+    const weg = a.housing === 'condo'
+      ? ' Bei Eigentumswohnungen besteht die Gebäudeversicherung meist über die WEG – Umfang (inkl. Elementar) bei der Hausverwaltung erfragen.'
+      : '';
+    recs.push({ name: 'Wohngebäudeversicherung + Elementarschutz', icon: '🏡', priority: 2, reason: 'Unverzichtbar als Immobilienbesitzer. Unbedingt mit Elementarschadenversicherung!' + weg, hasIt: existing.includes('gebaeude'), tag: 'essential', detailModule: 'wohngebaeude' });
+  }
+  if (a.housing === 'house') {
+    recs.push({ name: 'Haus- und Grundbesitzerhaftpflicht', icon: '🏘️', priority: 3, reason: 'Eigentümerhaftung für Gebäude und Grundstück (z. B. Streupflicht) ist nicht über die Privathaftpflicht gedeckt.', hasIt: existing.includes('haus_grund'), tag: 'empfohlen', detailModule: 'haus_grund' });
   }
 
   // Empfohlen
-  recs.push({ name: 'Auslandskrankenversicherung', icon: '✈️', priority: 3, reason: 'Ab 8–15 €/Jahr – Behandlungen und Rücktransport bei Auslandsreisen.', hasIt: existing.includes('ausland'), tag: 'empfohlen', detailModule: null });
+  recs.push({ name: 'Auslandskrankenversicherung', icon: '✈️', priority: 3, reason: 'Ab 8–15 €/Jahr – Behandlungen und Rücktransport bei Auslandsreisen.', hasIt: existing.includes('ausland'), tag: 'empfohlen', detailModule: 'ausland' });
 
   const needsLife = (a.family === 'family' || a.family === 'single_parent' || a.family === 'partner' || extras.includes('loan'));
   if (needsLife) {
@@ -555,24 +831,35 @@ function generateRecommendations() {
   recs.push({ name: 'Hausratversicherung', icon: '🏠', priority: 3, reason: 'Schützt Möbel, Elektronik und persönliche Gegenstände.', hasIt: existing.includes('hausrat'), tag: 'empfohlen', detailModule: 'hausrat' });
 
   if (a.family === 'family' || a.family === 'single_parent' || extras.includes('planning_kids')) {
-    recs.push({ name: 'Kinderinvaliditätsversicherung', icon: '🧒', priority: 3, reason: 'Schützt Ihr Kind bei dauerhafter Behinderung.', hasIt: false, tag: 'empfohlen', detailModule: null });
+    recs.push({ name: 'Kinderinvaliditätsversicherung', icon: '🧒', priority: 3, reason: 'Schützt Ihr Kind bei dauerhafter Behinderung.', hasIt: false, tag: 'empfohlen', detailModule: 'kinderinvalid' });
+  }
+
+  if (a.job === 'self_employed') {
+    recs.push({ name: 'Krankentagegeldversicherung', icon: '🩺', priority: 3, reason: 'Selbständige haben in der GKV ohne Wahltarif keinen Krankengeldanspruch – Einkommensausfall bei längerer Krankheit absichern.', hasIt: existing.includes('ktg'), tag: 'empfohlen', detailModule: 'ktg' });
+    recs.push({ name: 'Berufshaftpflichtversicherung', icon: '🧰', priority: 3, reason: 'Schäden aus der beruflichen Tätigkeit sind nicht über die Privathaftpflicht gedeckt; für manche Berufe Pflicht.', hasIt: existing.includes('bhv'), tag: 'empfohlen', detailModule: 'bhv' });
+  }
+
+  if (a.age === 'senior' || a.age === 'mid_career') {
+    recs.push({ name: 'Pflegezusatzversicherung', icon: '🧓', priority: a.age === 'senior' ? 3 : 4, reason: 'Die gesetzliche Pflegeversicherung deckt nur einen Teil der Kosten. Je früher der Abschluss, desto günstiger.', hasIt: existing.includes('pflege'), tag: a.age === 'senior' ? 'empfohlen' : 'optional', detailModule: 'pflege' });
   }
 
   // Optional
-  recs.push({ name: 'Rechtsschutzversicherung', icon: '⚖️', priority: 4, reason: 'Übernimmt Anwalts- und Gerichtskosten.', hasIt: existing.includes('rechtsschutz'), tag: 'optional', detailModule: null });
-  recs.push({ name: 'Zahnzusatzversicherung', icon: '🦷', priority: 4, reason: 'Ergänzt GKV-Leistungen bei Zahnersatz.', hasIt: existing.includes('zahn'), tag: 'optional', detailModule: null });
+  recs.push({ name: 'Rechtsschutzversicherung', icon: '⚖️', priority: 4, reason: 'Übernimmt Anwalts- und Gerichtskosten.', hasIt: existing.includes('rechtsschutz'), tag: 'optional', detailModule: 'rechtsschutz' });
+  recs.push({ name: 'Zahnzusatzversicherung', icon: '🦷', priority: 4, reason: 'Ergänzt GKV-Leistungen bei Zahnersatz.', hasIt: existing.includes('zahn'), tag: 'optional', detailModule: 'zahn' });
 
-  if (a.job === 'self_employed' || extras.includes('risky_hobby')) {
-    recs.push({
-      name: 'Private Unfallversicherung', icon: '🤕',
-      priority: a.job === 'self_employed' ? 3 : 4,
-      reason: a.job === 'self_employed' ? 'Ohne gesetzlichen Unfallschutz – besonders wichtig.' : 'Sinnvoll bei risikoreichen Hobbys.',
-      hasIt: existing.includes('unfall'), tag: a.job === 'self_employed' ? 'empfohlen' : 'optional', detailModule: 'unfall'
-    });
-  }
+  // Unfallversicherung: für alle sichtbar (optional), für Selbständige empfohlen
+  const unfallTag = a.job === 'self_employed' ? 'empfohlen' : 'optional';
+  recs.push({
+    name: 'Private Unfallversicherung', icon: '🤕',
+    priority: a.job === 'self_employed' ? 3 : 4,
+    reason: a.job === 'self_employed' ? 'Ohne gesetzlichen Unfallschutz – besonders wichtig.'
+      : extras.includes('risky_hobby') ? 'Sinnvoll bei risikoreichen Hobbys (Sportarten prüfen – oft ausgeschlossen).'
+      : 'Ergänzt die gesetzliche Unfallversicherung, die nur Arbeits- und Wegeunfälle abdeckt. Die meisten Unfälle passieren in der Freizeit.',
+    hasIt: existing.includes('unfall'), tag: unfallTag, detailModule: 'unfall'
+  });
 
   if (a.vehicle && a.vehicle !== 'none') {
-    recs.push({ name: 'Kfz-Kaskoversicherung', icon: '🚙', priority: 4, reason: 'Teilkasko bei älteren, Vollkasko bei neueren Fahrzeugen.', hasIt: false, tag: 'optional', detailModule: null });
+    recs.push({ name: 'Kfz-Kaskoversicherung', icon: '🚙', priority: 4, reason: 'Teilkasko bei älteren, Vollkasko bei neueren Fahrzeugen.', hasIt: false, tag: 'optional', detailModule: 'kasko' });
   }
 
   // Private Altersvorsorge
@@ -580,7 +867,7 @@ function generateRecommendations() {
     let avName, avReason, avTag;
     if (a.job === 'self_employed') {
       avName = 'Private Altersvorsorge (Rürup-Rente / Basisrente)';
-      avReason = 'Als Selbständige/r ohne GRV-Pflicht – private Vorsorge ist existenziell! Rürup: steuerlich absetzbar (2026: bis 27.566 €/Jahr).';
+      avReason = `Als Selbständige/r ohne GRV-Pflicht – private Vorsorge ist existenziell! Rürup: steuerlich absetzbar (2026: bis ${fmt(C.ruerupMax)} €/Jahr).`;
       avTag = 'essential';
     } else if (a.job === 'employee') {
       avName = 'Private Altersvorsorge (Riester / bAV / Private RV)';
@@ -603,18 +890,25 @@ function generateRecommendations() {
       name: 'Tierhalterhaftpflicht', icon: '🐾',
       priority: extras.includes('dog') ? 2 : 3,
       reason: extras.includes('dog') ? 'In vielen Bundesländern Pflicht für Hundehalter.' : 'Dringend empfohlen für Pferdehalter.',
-      hasIt: false, tag: extras.includes('dog') ? 'essential' : 'empfohlen', detailModule: null
+      hasIt: false, tag: extras.includes('dog') ? 'essential' : 'empfohlen', detailModule: 'tierhalter'
     });
   }
 
-  recs.sort((a, b) => a.priority - b.priority);
+  recs.sort((x, y) => x.priority - y.priority);
   return recs;
 }
+
+const CALC_MODULES = ['bu', 'phv', 'hausrat', 'risiko', 'unfall', 'altersvorsorge'];
+const MODULE_TITLES = {
+  bu: '💼 Berufsunfähigkeit / Dienstunfähigkeit', phv: '⚡ Privathaftpflicht', hausrat: '🏠 Hausrat',
+  risiko: '👨‍👩‍👧 Risikoleben', unfall: '🤕 Unfallversicherung', altersvorsorge: '🏦 Private Altersvorsorge'
+};
 
 // ===== SHOW RESULTS =====
 function showResults() {
   const recs = generateRecommendations();
   document.getElementById('resultTab').style.display = '';
+  document.getElementById('protokollTab').style.display = '';
   showTab('result');
 
   const groups = {
@@ -624,6 +918,13 @@ function showResults() {
     optional: { title: '🟣 Sinnvoll im Einzelfall', items: [] }
   };
   recs.forEach(r => { if (groups[r.tag]) groups[r.tag].items.push(r); });
+
+  const tagLabels = {
+    pflicht: '<span class="r-tag tag-pflicht">PFLICHT</span>',
+    essential: '<span class="r-tag tag-essential">DRINGEND</span>',
+    empfohlen: '<span class="r-tag tag-empfohlen">EMPFOHLEN</span>',
+    optional: '<span class="r-tag tag-optional">OPTIONAL</span>'
+  };
 
   let html = '';
   const missing = recs.filter(r => !r.hasIt && (r.tag === 'essential' || r.tag === 'empfohlen'));
@@ -637,17 +938,9 @@ function showResults() {
     if (group.items.length === 0) continue;
     html += `<div class="result-section"><h3>${group.title}</h3>`;
     group.items.forEach(r => {
-      const tagLabels = {
-        pflicht: '<span class="r-tag tag-pflicht">PFLICHT</span>',
-        essential: '<span class="r-tag tag-essential">DRINGEND</span>',
-        empfohlen: '<span class="r-tag tag-empfohlen">EMPFOHLEN</span>',
-        optional: '<span class="r-tag tag-optional">OPTIONAL</span>'
-      };
-      const vertiefenBtn = r.detailModule && !r.hasIt
-        ? `<button class="btn-vertiefen" onclick="openDetail('${r.detailModule}')">🔍 Vertiefen — Lücke berechnen</button>`
-        : r.detailModule && r.hasIt
-        ? `<button class="btn-vertiefen" onclick="openDetail('${r.detailModule}')">🔍 Deckung prüfen</button>`
-        : '';
+      const isCalc = CALC_MODULES.includes(r.detailModule);
+      const btnLabel = isCalc ? (r.hasIt ? '🔍 Deckung prüfen' : '🔍 Vertiefen — Lücke berechnen') : '📖 Mehr erfahren';
+      const vertiefenBtn = r.detailModule ? `<button class="btn-vertiefen" onclick="openDetail('${r.detailModule}')">${btnLabel}</button>` : '';
       html += `<div class="result-card ${tag}">
         <span class="r-icon">${r.icon}</span>
         <div class="r-body">
@@ -661,12 +954,16 @@ function showResults() {
     html += '</div>';
   }
 
-  html += `<div class="result-section"><h3>⚪ Meist verzichtbar</h3>
-    <div class="result-card skip"><span class="r-icon">📱</span><div class="r-body">
-      <div class="r-name">Handy-, Brillen-, Reisegepäck-, Sterbegeld-, Insassenunfallversicherung</div>
+  html += `<div class="result-section"><h3>⚪ Meist verzichtbar</h3>`;
+  SKIP_ITEMS.forEach(it => {
+    html += `<div class="result-card skip"><span class="r-icon">${it.icon}</span><div class="r-body">
+      <div class="r-name">${it.name}</div>
       <div class="r-reason">Große Risiken versichern, kleine Schäden selbst tragen.</div>
-      <span class="r-tag tag-skip">VERZICHTBAR</span>
-    </div></div></div>`;
+      <span class="r-tag tag-skip">VERZICHTBAR</span><br>
+      <button class="btn-vertiefen" onclick="openDetail('${it.key}')">📖 Mehr erfahren</button>
+    </div></div>`;
+  });
+  html += '</div>';
 
   document.getElementById('resultContent').innerHTML = html;
 }
@@ -674,61 +971,100 @@ function showResults() {
 // ===== DETAIL ANALYSIS MODULES =====
 function openDetail(module) {
   document.getElementById('detailTab').style.display = '';
+  document.getElementById('protokollTab').style.display = '';
   showTab('detail');
 
   const renderers = { bu: renderBU, phv: renderPHV, hausrat: renderHausrat, risiko: renderRisiko, unfall: renderUnfall, altersvorsorge: renderAltersvorsorge };
+  const el = document.getElementById('detailContent');
   if (renderers[module]) {
-    document.getElementById('detailContent').innerHTML = renderers[module]();
+    el.innerHTML = renderers[module]();
+  } else if (INFO_MODULES[module]) {
+    el.innerHTML = renderInfo(module);
   }
+}
+
+// --- Maßnahmenplan / Beitragsschätzung ---
+// data: { measures:[], low, high, unit, factors:[], saving:boolean }
+function renderCoverPlan(module, data) {
+  if (!data || !(data.high > 0)) { if (detailData[module]) detailData[module].plan = null; return ''; }
+  const plan = {
+    measures: data.measures || [], low: Math.round(data.low), high: Math.round(data.high),
+    unit: data.unit || '€/Monat', factors: data.factors || [], saving: !!data.saving
+  };
+  if (detailData[module]) detailData[module].plan = plan;
+  const range = plan.low === plan.high ? `ca. ${fmt(plan.high)} ${plan.unit}` : `ca. ${fmt(plan.low)} bis ${fmt(plan.high)} ${plan.unit}`;
+  return `
+    <div class="plan-panel">
+      <h4>So schließen Sie die Lücke</h4>
+      <ul>${plan.measures.map(m => `<li>${m}</li>`).join('')}</ul>
+      <div class="plan-price">${plan.saving ? 'Geschätzte Sparrate' : 'Geschätzter Beitrag'}: ${range}</div>
+      ${plan.factors.length ? `<div style="font-size:0.85rem;"><strong>Einflussfaktoren:</strong></div><ul>${plan.factors.map(f => `<li>${f}</li>`).join('')}</ul>` : ''}
+      <div class="plan-small">${PREMIUM_TABLES.fixText}</div>
+    </div>`;
 }
 
 // --- BU Module ---
 function renderBU() {
   const hasIt = (answers.existing || []).includes('bu');
+  const job = answers.job;
+  const isEmployee = job === 'employee';
+  const isCivil = job === 'civil_servant';
   return `
     <div class="detail-panel">
-      <h3>💼 Berufsunfähigkeitsversicherung — Detailanalyse</h3>
+      <h3>💼 ${isCivil ? 'Dienstunfähigkeit / Berufsunfähigkeit' : 'Berufsunfähigkeitsversicherung'} — Detailanalyse</h3>
       <div class="info-box">
         <strong>§ 172 VVG:</strong> BU liegt vor, wenn die versicherte Person ihren zuletzt ausgeübten Beruf zu mindestens 50% nicht mehr ausüben kann.
         Faustregel: BU-Rente = <strong>75–80% des Nettoeinkommens</strong>.
+        ${isCivil ? '<br><strong>Beamte:</strong> Eine reine BU greift nicht automatisch bei Dienstunfähigkeit – achten Sie auf eine DU-Klausel (Dienstunfähigkeit wird wie BU behandelt). Das Ruhegehalt ersetzt das Einkommen nur teilweise und erst nach 5 Dienstjahren.' : ''}
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>Monatliches Bruttoeinkommen (€)</label>
-          <input type="number" class="form-input" id="bu-brutto" placeholder="z.B. 4500" oninput="calcBU()">
+          <label for="bu-brutto">Monatliches Bruttoeinkommen (€)</label>
+          <input type="number" min="0" class="form-input" id="bu-brutto" placeholder="z.B. 4500" oninput="calcBU()">
         </div>
         <div class="form-group">
-          <label>Monatliches Nettoeinkommen (€)</label>
-          <input type="number" class="form-input" id="bu-netto" placeholder="z.B. 2800" oninput="calcBU()">
+          <label for="bu-netto">Monatliches Nettoeinkommen (€)</label>
+          <input type="number" min="0" class="form-input" id="bu-netto" placeholder="z.B. 2800" oninput="calcBU()">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Alter (Jahre)</label>
-          <input type="number" class="form-input" id="bu-alter" placeholder="z.B. 35" oninput="calcBU()">
+          <label for="bu-alter">Alter (Jahre)</label>
+          <input type="number" min="16" max="67" class="form-input" id="bu-alter" placeholder="z.B. 35" oninput="calcBU()">
         </div>
         <div class="form-group">
-          <label>Beitragsjahre in GRV</label>
+          <label for="bu-beitragsjahre">Beitragsjahre in GRV</label>
           <div class="hint">Alter minus Berufseinstiegsalter (z.B. 35 − 20 = 15)</div>
-          <input type="number" class="form-input" id="bu-beitragsjahre" placeholder="z.B. 15" oninput="calcBU()">
+          <input type="number" min="0" class="form-input" id="bu-beitragsjahre" placeholder="z.B. 15" oninput="calcBU()">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Bestehende private BU-Rente (€/Monat)</label>
-          <div class="hint">${hasIt ? 'Sie haben bereits eine BU' : 'Falls vorhanden'}</div>
-          <input type="number" class="form-input" id="bu-existing" placeholder="0" value="${hasIt ? '' : '0'}" oninput="calcBU()">
+          <label for="bu-existing">Bestehende private BU-Rente (€/Monat)</label>
+          <div class="hint">${hasIt ? 'Sie haben bereits eine BU/DU' : 'Falls vorhanden'}</div>
+          <input type="number" min="0" class="form-input" id="bu-existing" placeholder="0" value="${hasIt ? '' : '0'}" oninput="calcBU()">
         </div>
         <div class="form-group">
-          <label>Berufsgruppe</label>
-          <select class="form-input" id="bu-job" onchange="calcBU()">
-            <option value="1">Büro / Verwaltung (Gruppe 1)</option>
-            <option value="2">Handwerk / körperlich (Gruppe 2)</option>
-            <option value="3">Risiko / schwere Arbeit (Gruppe 3)</option>
-            <option value="4">Selbständig (Gruppe 4)</option>
+          <label for="bu-risk">Berufsrisiko (Tätigkeit)</label>
+          <select class="form-input" id="bu-risk" onchange="calcBU()">
+            <option value="buero">Büro / Verwaltung</option>
+            <option value="gemischt">Gemischt (teils körperlich)</option>
+            <option value="koerperlich">Überwiegend körperlich</option>
+            <option value="hochrisiko">Hochriskant (Gefahrenberuf)</option>
           </select>
         </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status (aus Ihrer Analyse)</label>
+          <div class="form-input" style="background:#f4f6f8;">${labelOf('job', job)}</div>
+        </div>
+        ${isEmployee ? `<div class="form-group">
+          <label for="bu-em">EM-Rente netto (€/Monat), optional</label>
+          <div class="hint">Wert aus Ihrer Renteninformation/Rentenauskunft; überschreibt die Schätzung</div>
+          <input type="number" min="0" class="form-input" id="bu-em" placeholder="leer = Schätzung" oninput="calcBU()">
+        </div>` : '<div></div>'}
       </div>
 
       <div id="bu-result"></div>
@@ -739,78 +1075,109 @@ function renderBU() {
 }
 
 function calcBU() {
-  const netto = parseFloat(document.getElementById('bu-netto')?.value) || 0;
-  const brutto = parseFloat(document.getElementById('bu-brutto')?.value) || 0;
-  const existing = parseFloat(document.getElementById('bu-existing')?.value) || 0;
-  const jobGroup = document.getElementById('bu-job')?.value || '1';
-  const alter = parseFloat(document.getElementById('bu-alter')?.value) || 0;
-  const beitragsjahre = parseFloat(document.getElementById('bu-beitragsjahre')?.value) || 0;
+  const C = CONSTANTS_2026;
+  const netto = numVal('bu-netto');
+  const brutto = numVal('bu-brutto');
+  const existing = numVal('bu-existing');
+  const risk = document.getElementById('bu-risk')?.value || 'buero';
+  const alter = numVal('bu-alter');
+  const beitragsjahre = numVal('bu-beitragsjahre');
+  const emOverride = numVal('bu-em');
 
-  if (netto === 0) { document.getElementById('bu-result').innerHTML = ''; return; }
+  if (netto === 0) { delete detailData.bu; document.getElementById('bu-result').innerHTML = ''; return; }
 
   const recommended = Math.round(netto * 0.78);  // 78% Netto (Mittelwert aus 75-80%)
-
-  // GRV EM-Rente Schätzung für Angestellte
-  let emRente = 0;
-  let emRenteHtml = '';
   const isEmployee = answers.job === 'employee';
   const isSelf = answers.job === 'self_employed';
+  const isCivil = answers.job === 'civil_servant';
 
+  // GRV EM-Rente (nur volle Erwerbsminderung), vereinfachte Schätzung
+  let emBrutto = 0, emNettoEst = 0;
   if (isEmployee && brutto > 0 && alter > 0 && beitragsjahre > 0) {
-    const durchschnitt = 45358; // Durchschnittsentgelt 2026 (vorläufig)
-    const jahresbrutto = brutto * 12;
-    const epProJahr = Math.min(jahresbrutto / durchschnitt, 101400 / durchschnitt); // BBG-gedeckelt
-    const bisherige_ep = epProJahr * beitragsjahre;
-    // Zurechnungszeit: bis 67, zu 75% des bisherigen Durchschnitts
-    const zurechnungsjahre = Math.max(0, 67 - alter);
-    const zurechnungs_ep = epProJahr * zurechnungsjahre * 0.75;
-    const totalEP = bisherige_ep + zurechnungs_ep;
-    // Rentenwert 2026 West: 39,32€; Rentenartfaktor volle EM: 1.0
-    emRente = Math.round(totalEP * 39.32);
-    emRenteHtml = `
-      <div class="gap-bar-container">
-        <div class="gap-label"><span>GRV EM-Rente (geschätzt)</span><span>${emRente.toLocaleString('de-DE')} €/Monat</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill" style="width:${Math.min(100, Math.round(emRente / recommended * 100))}%; background: var(--warn);">${emRente.toLocaleString('de-DE')} €</div></div>
-      </div>`;
+    const epProJahr = Math.min(brutto * 12, C.bbgRV) / C.durchschnittsentgelt;
+    const zurechnungsjahre = Math.max(0, C.zurechnungsEnde - alter);
+    const totalEP = epProJahr * (beitragsjahre + zurechnungsjahre); // Zurechnungszeit zu 100 %
+    emBrutto = Math.round(totalEP * C.rentenwert * C.emZugangsfaktor);
+    emNettoEst = Math.round(emBrutto * C.emNettoFaktor);
   }
+  const emNetto = emOverride > 0 ? emOverride : emNettoEst;
 
-  const totalCovered = existing + emRente;
-  const gap = Math.max(0, recommended - totalCovered);
-  const pctCovered = totalCovered > 0 ? Math.min(100, Math.round(totalCovered / recommended * 100)) : 0;
+  const gapOhneEM = Math.max(0, recommended - existing);
+  const gapMitEM = Math.max(0, recommended - existing - emNetto);
+  const pctOhne = Math.min(100, Math.round(existing / recommended * 100));
 
-  const riskInfo = {
-    '1': { factor: 'niedrig', hint: 'Günstige Beiträge zu erwarten' },
-    '2': { factor: 'mittel', hint: 'Mittlere Beitragshöhe' },
-    '3': { factor: 'hoch', hint: 'Höhere Beiträge aufgrund des Berufsrisikos' },
-    '4': { factor: 'variabel', hint: 'Ohne gesetzlichen Schutz – BU besonders wichtig!' }
-  }[jobGroup];
+  const riskLabels = { buero: 'Büro / Verwaltung', gemischt: 'Gemischt', koerperlich: 'Überwiegend körperlich', hochrisiko: 'Hochriskant' };
 
-  detailData.bu = { netto, brutto, recommended, existing, gap, pctCovered, jobGroup, riskInfo, emRente, alter, beitragsjahre };
+  detailData.bu = {
+    netto, brutto, recommended, existing, alter, beitragsjahre, risk, riskLabel: riskLabels[risk],
+    status: labelOf('job', answers.job), emBrutto, emNettoEst, emNetto, emOverride: emOverride > 0,
+    gapOhneEM, gapMitEM, gap: gapOhneEM
+  };
+
+  const gapBox = (g) => g > 0
+    ? `<div class="gap-summary gap-warning">⚠️ Versorgungslücke: <strong>${fmt(g)} €/Monat</strong> (${Math.round(g / recommended * 100)}% ungedeckt)</div>`
+    : `<div class="gap-summary gap-ok">✅ Ausreichend abgesichert</div>`;
 
   let html = `
     <div class="gap-chart">
       <div class="gap-bar-container">
-        <div class="gap-label"><span>Empfohlene BU-Rente (78% Netto)</span><span>${recommended.toLocaleString('de-DE')} €/Monat</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${recommended.toLocaleString('de-DE')} €</div></div>
+        <div class="gap-label"><span>Empfohlene BU-Rente (78% Netto)</span><span>${fmt(recommended)} €/Monat</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${fmt(recommended)} €</div></div>
       </div>
-      ${emRenteHtml}
       <div class="gap-bar-container">
-        <div class="gap-label"><span>Private BU-Rente (bestehend)</span><span>${existing.toLocaleString('de-DE')} €/Monat</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${existing > 0 ? Math.min(100, Math.round(existing / recommended * 100)) : 0}%">${existing > 0 ? existing.toLocaleString('de-DE') + ' €' : '—'}</div></div>
+        <div class="gap-label"><span>Private BU-Rente (bestehend)</span><span>${fmt(existing)} €/Monat</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${pctOhne}%">${existing > 0 ? fmt(existing) + ' €' : '—'}</div></div>
       </div>
+      ${emNetto > 0 ? `<div class="gap-bar-container">
+        <div class="gap-label"><span>GRV EM-Rente netto (${emOverride > 0 ? 'Ihre Angabe' : 'geschätzt'}) — nur bei voller Erwerbsminderung</span><span>${fmt(emNetto)} €/Monat</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill" style="width:${Math.min(100, Math.round(emNetto / recommended * 100))}%; background: var(--warn);">${fmt(emNetto)} €</div></div>
+      </div>` : ''}
     </div>
-    ${gap > 0
-      ? `<div class="gap-summary gap-warning">⚠️ Versorgungslücke: <strong>${gap.toLocaleString('de-DE')} €/Monat</strong> (${100 - pctCovered}% ungedeckt)</div>`
-      : `<div class="gap-summary gap-ok">✅ Ausreichend abgesichert</div>`
-    }
-    <div class="info-box" style="margin-top:1rem;">
-      <strong>Berufsrisiko:</strong> ${riskInfo.factor} — ${riskInfo.hint}<br>
-      <strong>Empfehlung:</strong> 75–80% des Nettoeinkommens (hier: 78% als Mittelwert).<br>
-      ${isEmployee && emRente > 0 ? `<strong>GRV EM-Rente (geschätzt):</strong> ${emRente.toLocaleString('de-DE')} €/Monat — <em>vereinfachte Schätzung</em> (Rentenwert 39,32 € West 2026, Zurechnungszeit bis 67 zu 75%). Tatsächliche Höhe abhängig vom individuellen Versicherungsverlauf.<br>` : ''}
-      ${isEmployee && emRente === 0 ? '<strong>GRV-Erwerbsminderung:</strong> Geben Sie Alter und Beitragsjahre ein für eine Schätzung der EM-Rente.<br>' : ''}
-      ${isSelf ? '<strong>⚠️ Achtung Selbständige:</strong> Kein gesetzlicher BU-/EM-Schutz! Private BU ist existenziell.<br>' : ''}
-      ${!isEmployee && !isSelf ? '<strong>GRV-Erwerbsminderung:</strong> Die gesetzliche EM-Rente deckt maximal ca. 30–35% des Brutto – kein ausreichender Ersatz für eine private BU.<br>' : ''}
+
+    <div class="scenario">
+      <h4>Szenario 1: Ohne EM-Rente (konservativ)</h4>
+      ${gapBox(gapOhneEM)}
     </div>`;
+
+  if (isEmployee) {
+    html += `<div class="scenario">
+      <h4>Szenario 2: Mit EM-Rente (nur bei voller Erwerbsminderung)</h4>
+      ${emNetto > 0
+        ? gapBox(gapMitEM)
+        : '<p style="font-size:0.9rem;">Geben Sie Alter, Beitragsjahre und Bruttoeinkommen ein – oder tragen Sie Ihre EM-Rente aus der Renteninformation ein.</p>'}
+      <p class="plan-small">Die volle EM-Rente setzt voraus, dass Sie weniger als 3 Stunden täglich in irgendeiner Tätigkeit arbeiten können. Die Hürden sind deutlich höher als bei einer BU (Verweisung auf jede Tätigkeit des allgemeinen Arbeitsmarkts).</p>
+    </div>`;
+  }
+
+  html += `<div class="info-box" style="margin-top:1rem;">
+      <strong>Berufsrisiko:</strong> ${riskLabels[risk]} — beeinflusst den Beitrag${risk === 'hochrisiko' ? ' (u. U. nur eingeschränkt oder gar nicht versicherbar)' : ''}.<br>
+      <strong>Status:</strong> ${labelOf('job', answers.job)}<br>
+      <strong>Empfehlung:</strong> 75–80% des Nettoeinkommens (hier: 78% als Mittelwert).<br>
+      ${isEmployee && emNettoEst > 0 ? `<strong>GRV EM-Rente (geschätzt):</strong> brutto ${fmt(emBrutto)} €, netto ca. ${fmt(emNettoEst)} €/Monat — <em>vereinfachte Schätzung</em> (Rentenwert ${C.rentenwert.toLocaleString('de-DE')} €, Durchschnittsentgelt ${fmt(C.durchschnittsentgelt)} €, Zurechnungszeit bis ${C.zurechnungsEnde} zu 100 %, Zugangsfaktor ${C.emZugangsfaktor.toLocaleString('de-DE')}, netto = brutto × ${C.emNettoFaktor.toLocaleString('de-DE')}). Tatsächliche Höhe laut Renteninformation prüfen.<br>` : ''}
+      ${isSelf ? '<strong>⚠️ Achtung Selbständige:</strong> Kein gesetzlicher BU-/EM-Schutz! Private BU ist existenziell.<br>' : ''}
+      ${isCivil ? '<strong>Beamte:</strong> Keine GRV-EM-Rente. Eine DU-Klausel ist wichtig; Ruhegehalt nach 5 Dienstjahren separat prüfen.<br>' : ''}
+      ${!isEmployee && !isSelf && !isCivil ? '<strong>GRV-Erwerbsminderung:</strong> Die gesetzliche EM-Rente deckt maximal ca. 30–35% des Brutto – kein ausreichender Ersatz für eine private BU.<br>' : ''}
+    </div>`;
+
+  // Maßnahmenplan (auf Basis des konservativen Szenarios)
+  if (gapOhneEM > 0) {
+    const rente = Math.ceil(gapOhneEM / 50) * 50;
+    const ageUsed = alter > 0 ? alter : ageFromAnswers();
+    const base = tableLookup(PREMIUM_TABLES.buPer1000, ageUsed);
+    const f = PREMIUM_TABLES.buRisk[risk] * (PREMIUM_TABLES.buStatus[answers.job] || 1);
+    const low = base[0] * f * rente / 1000, high = base[1] * f * rente / 1000;
+    html += renderCoverPlan('bu', {
+      measures: [
+        `${isCivil ? 'DU-Vertrag bzw. BU mit DU-Klausel' : 'BU-Vertrag'} über ca. ${fmt(rente)} €/Monat abschließen (Laufzeit bis 67, ohne abstrakte Verweisung).`,
+        'Nachversicherungsgarantie und Dynamik (Beitrags- und Leistungsdynamik) vereinbaren.',
+        'Gesundheitsfragen sorgfältig beantworten; bei Vorerkrankungen vorab anonyme Risikovoranfrage nutzen.'
+      ],
+      low, high,
+      factors: ['Eintrittsalter (' + ageUsed + ' J.)', 'Berufsrisiko: ' + riskLabels[risk], 'Status: ' + labelOf('job', answers.job), 'Gesundheitszustand, Nichtraucher, Laufzeit/Endalter', 'Beitrag vor Überschussbeteiligung (Zahlbeitrag kann niedriger sein)']
+    });
+  } else {
+    renderCoverPlan('bu', null);
+  }
 
   document.getElementById('bu-result').innerHTML = html;
   checkProtokoll();
@@ -828,17 +1195,17 @@ function renderHausrat() {
 
       <div class="form-row">
         <div class="form-group">
-          <label>Wohnfläche (m²)</label>
-          <input type="number" class="form-input" id="hr-flaeche" placeholder="z.B. 75" oninput="calcHausrat()">
+          <label for="hr-flaeche">Wohnfläche (m²)</label>
+          <input type="number" min="0" class="form-input" id="hr-flaeche" placeholder="z.B. 75" oninput="calcHausrat()">
         </div>
         <div class="form-group">
-          <label>Bestehende Versicherungssumme (€)</label>
-          <input type="number" class="form-input" id="hr-existing" placeholder="0" value="0" oninput="calcHausrat()">
+          <label for="hr-existing">Bestehende Versicherungssumme (€)</label>
+          <input type="number" min="0" class="form-input" id="hr-existing" placeholder="0" value="0" oninput="calcHausrat()">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Ausstattungsniveau</label>
+          <label for="hr-level">Ausstattungsniveau</label>
           <select class="form-input" id="hr-level" onchange="calcHausrat()">
             <option value="650">Standard (650 €/m²)</option>
             <option value="800">Gehoben (800 €/m²)</option>
@@ -846,7 +1213,7 @@ function renderHausrat() {
           </select>
         </div>
         <div class="form-group">
-          <label>Fahrräder mitversichern?</label>
+          <label for="hr-fahrrad">Fahrräder mitversichern?</label>
           <select class="form-input" id="hr-fahrrad" onchange="calcHausrat()">
             <option value="0">Nein / in Versicherung enthalten</option>
             <option value="1500">Ja, Wert ca. 1.500 €</option>
@@ -863,12 +1230,12 @@ function renderHausrat() {
 }
 
 function calcHausrat() {
-  const flaeche = parseFloat(document.getElementById('hr-flaeche')?.value) || 0;
-  const existing = parseFloat(document.getElementById('hr-existing')?.value) || 0;
-  const level = parseFloat(document.getElementById('hr-level')?.value) || 650;
-  const fahrrad = parseFloat(document.getElementById('hr-fahrrad')?.value) || 0;
+  const flaeche = numVal('hr-flaeche');
+  const existing = numVal('hr-existing');
+  const level = numVal('hr-level', 650);
+  const fahrrad = numVal('hr-fahrrad');
 
-  if (flaeche === 0) { document.getElementById('hr-result').innerHTML = ''; return; }
+  if (flaeche === 0) { delete detailData.hausrat; document.getElementById('hr-result').innerHTML = ''; return; }
 
   const recommended = Math.round(flaeche * level + fahrrad);
   const gap = Math.max(0, recommended - existing);
@@ -879,16 +1246,16 @@ function calcHausrat() {
   let html = `
     <div class="gap-chart">
       <div class="gap-bar-container">
-        <div class="gap-label"><span>Empfohlene Versicherungssumme</span><span>${recommended.toLocaleString('de-DE')} €</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${recommended.toLocaleString('de-DE')} €</div></div>
+        <div class="gap-label"><span>Empfohlene Versicherungssumme</span><span>${fmt(recommended)} €</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${fmt(recommended)} €</div></div>
       </div>
       <div class="gap-bar-container">
-        <div class="gap-label"><span>Bestehende Versicherungssumme</span><span>${existing.toLocaleString('de-DE')} €</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${pct}%">${existing > 0 ? existing.toLocaleString('de-DE') + ' €' : '—'}</div></div>
+        <div class="gap-label"><span>Bestehende Versicherungssumme</span><span>${fmt(existing)} €</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${pct}%">${existing > 0 ? fmt(existing) + ' €' : '—'}</div></div>
       </div>
     </div>
     ${gap > 0
-      ? `<div class="gap-summary gap-warning">⚠️ Unterversichert: <strong>${gap.toLocaleString('de-DE')} €</strong> Differenz — Gefahr der Leistungskürzung bei Schadenfall!</div>`
+      ? `<div class="gap-summary gap-warning">⚠️ Unterversichert: <strong>${fmt(gap)} €</strong> Differenz — Gefahr der Leistungskürzung bei Schadenfall!</div>`
       : `<div class="gap-summary gap-ok">✅ Ausreichend versichert</div>`
     }
     <div class="info-box" style="margin-top:1rem;">
@@ -896,6 +1263,21 @@ function calcHausrat() {
       Achten Sie auf: Elementarschutz, Fahrraddiebstahl (auch nachts draußen?), Glasbruch.
       ${fahrrad > 0 ? '<br><strong>Fahrrad:</strong> Meist separate Klausel nötig. Nachtzeitklausel beachten!' : ''}
     </div>`;
+
+  if (gap > 0) {
+    const p = PREMIUM_TABLES.hausratPromille;
+    html += renderCoverPlan('hausrat', {
+      measures: [
+        `Versicherungssumme auf mindestens ${fmt(recommended)} € festsetzen (bzw. erhöhen).`,
+        'Unterversicherungsverzicht, grobe Fahrlässigkeit und Elementarschäden einschließen.',
+        fahrrad > 0 ? 'Fahrraddiebstahl inkl. Nachtzeitklausel und E-Bike-Wert prüfen.' : 'Außenversicherung (z. B. Reisegepäck, Fahrrad) bei Bedarf prüfen.'
+      ],
+      low: recommended * p[0] / 1000 / 12, high: recommended * p[1] / 1000 / 12,
+      factors: ['Versicherungssumme und Wohnort (Tarifzone)', 'Wohnungsart, Sicherheitsausstattung', 'Elementarbaustein (erhöht den Beitrag um grob 10–30 %)', 'Selbstbeteiligung']
+    });
+  } else {
+    renderCoverPlan('hausrat', null);
+  }
 
   document.getElementById('hr-result').innerHTML = html;
   checkProtokoll();
@@ -908,34 +1290,42 @@ function renderRisiko() {
       <h3>👨‍👩‍👧 Risikolebensversicherung — Absicherungsbedarf</h3>
       <div class="info-box">
         <strong>Faustregeln:</strong><br>
-        • Familien: <strong>3–5× Jahresbruttoeinkommen</strong> des Hauptverdieners<br>
-        • Bei laufendem Kredit: mindestens <strong>Restschuld</strong> absichern<br>
+        • Einkommensbedarf: <strong>3–5× Jahresbruttoeinkommen</strong> des Hauptverdieners<br>
+        • <strong>Zusätzlich</strong> die Restschuld laufender Kredite/Hypotheken absichern<br>
         • Laufzeit: bis das jüngste Kind finanziell selbständig ist
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>Jährliches Bruttoeinkommen (€)</label>
-          <input type="number" class="form-input" id="rl-brutto" placeholder="z.B. 54000" oninput="calcRisiko()">
+          <label for="rl-brutto">Jährliches Bruttoeinkommen (€)</label>
+          <input type="number" min="0" class="form-input" id="rl-brutto" placeholder="z.B. 54000" oninput="calcRisiko()">
         </div>
         <div class="form-group">
-          <label>Restschuld Kredit/Hypothek (€)</label>
-          <input type="number" class="form-input" id="rl-kredit" placeholder="0" value="0" oninput="calcRisiko()">
+          <label for="rl-kredit">Restschuld Kredit/Hypothek (€)</label>
+          <input type="number" min="0" class="form-input" id="rl-kredit" placeholder="0" value="0" oninput="calcRisiko()">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Bestehende Versicherungssumme (€)</label>
-          <input type="number" class="form-input" id="rl-existing" placeholder="0" value="0" oninput="calcRisiko()">
+          <label for="rl-existing">Bestehende Versicherungssumme (€)</label>
+          <input type="number" min="0" class="form-input" id="rl-existing" placeholder="0" value="0" oninput="calcRisiko()">
         </div>
         <div class="form-group">
-          <label>Absicherungsfaktor</label>
+          <label for="rl-factor">Absicherungsfaktor (Einkommensbedarf)</label>
           <select class="form-input" id="rl-factor" onchange="calcRisiko()">
             <option value="3">Konservativ (3× Jahresbrutto)</option>
             <option value="4">Mittel (4× Jahresbrutto)</option>
             <option value="5" selected>Empfohlen (5× Jahresbrutto)</option>
           </select>
         </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rl-alter">Alter der versicherten Person (optional)</label>
+          <div class="hint">Für die Beitragsschätzung; ohne Angabe wird die Altersgruppe aus Ihrer Analyse verwendet</div>
+          <input type="number" min="18" max="70" class="form-input" id="rl-alter" placeholder="z.B. 38" oninput="calcRisiko()">
+        </div>
+        <div></div>
       </div>
 
       <div id="rl-result"></div>
@@ -946,45 +1336,63 @@ function renderRisiko() {
 }
 
 function calcRisiko() {
-  const brutto = parseFloat(document.getElementById('rl-brutto')?.value) || 0;
-  const kredit = parseFloat(document.getElementById('rl-kredit')?.value) || 0;
-  const existing = parseFloat(document.getElementById('rl-existing')?.value) || 0;
-  const factor = parseFloat(document.getElementById('rl-factor')?.value) || 5;
+  const brutto = numVal('rl-brutto');
+  const kredit = numVal('rl-kredit');
+  const existing = numVal('rl-existing');
+  const factor = numVal('rl-factor', 5);
+  const alter = numVal('rl-alter');
 
-  if (brutto === 0) { document.getElementById('rl-result').innerHTML = ''; return; }
+  if (brutto === 0) { delete detailData.risiko; document.getElementById('rl-result').innerHTML = ''; return; }
 
   const fromIncome = Math.round(brutto * factor);
-  const recommended = Math.max(fromIncome, kredit);
+  const recommended = fromIncome + kredit;  // Einkommensbedarf + Restschuld
   const gap = Math.max(0, recommended - existing);
   const pct = existing > 0 ? Math.min(100, Math.round(existing / recommended * 100)) : 0;
 
-  detailData.risiko = { brutto, kredit, existing, recommended, gap, factor };
+  detailData.risiko = { brutto, kredit, existing, recommended, fromIncome, gap, factor, alter };
 
   let html = `
     <div class="gap-chart">
       <div class="gap-bar-container">
-        <div class="gap-label"><span>Empfohlene Versicherungssumme</span><span>${recommended.toLocaleString('de-DE')} €</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${recommended.toLocaleString('de-DE')} €</div></div>
+        <div class="gap-label"><span>Empfohlene Versicherungssumme</span><span>${fmt(recommended)} €</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${fmt(recommended)} €</div></div>
       </div>
       ${kredit > 0 ? `<div class="gap-bar-container">
-        <div class="gap-label"><span>davon Kreditsicherung</span><span>${kredit.toLocaleString('de-DE')} €</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill" style="width:${Math.round(kredit/recommended*100)}%; background: var(--warn);">${kredit.toLocaleString('de-DE')} €</div></div>
+        <div class="gap-label"><span>davon Restschuld</span><span>${fmt(kredit)} €</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill" style="width:${Math.round(kredit / recommended * 100)}%; background: var(--warn);">${fmt(kredit)} €</div></div>
       </div>` : ''}
       <div class="gap-bar-container">
-        <div class="gap-label"><span>Bestehende Absicherung</span><span>${existing.toLocaleString('de-DE')} €</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${pct}%">${existing > 0 ? existing.toLocaleString('de-DE') + ' €' : '—'}</div></div>
+        <div class="gap-label"><span>Bestehende Absicherung</span><span>${fmt(existing)} €</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${pct}%">${existing > 0 ? fmt(existing) + ' €' : '—'}</div></div>
       </div>
     </div>
     ${gap > 0
-      ? `<div class="gap-summary gap-warning">⚠️ Versorgungslücke: <strong>${gap.toLocaleString('de-DE')} €</strong></div>`
+      ? `<div class="gap-summary gap-warning">⚠️ Versorgungslücke: <strong>${fmt(gap)} €</strong></div>`
       : `<div class="gap-summary gap-ok">✅ Ausreichend abgesichert</div>`
     }
     <div class="info-box" style="margin-top:1rem;">
-      <strong>Rechenweg:</strong> ${factor}× Jahresbrutto ${brutto.toLocaleString('de-DE')} € = ${fromIncome.toLocaleString('de-DE')} €
-      ${kredit > 0 ? ` + Restschuld ${kredit.toLocaleString('de-DE')} €` : ''}
-      → Mindestens <strong>${recommended.toLocaleString('de-DE')} €</strong><br>
-      <strong>Tipp:</strong> Überkreuz-Versicherung bei Paaren: Partner A versichert Partner B und umgekehrt → Steuerfreie Auszahlung!
+      <strong>Rechenweg:</strong> ${factor}× Jahresbrutto ${fmt(brutto)} € = ${fmt(fromIncome)} €
+      ${kredit > 0 ? ` + Restschuld ${fmt(kredit)} €` : ''}
+      = <strong>${fmt(recommended)} €</strong><br>
+      <strong>Tipp:</strong> Bei Paaren kann eine Überkreuz-Konstruktion (Partner A versichert Partner B und umgekehrt) erbschaftsteuerliche Vorteile bringen – steuerlich prüfen lassen.
     </div>`;
+
+  if (gap > 0) {
+    const ageUsed = alter > 0 ? alter : ageFromAnswers();
+    const base = tableLookup(PREMIUM_TABLES.risikoPer100k, ageUsed);
+    const units = gap / 100000;
+    html += renderCoverPlan('risiko', {
+      measures: [
+        `Risikolebensversicherung über ca. ${fmt(Math.ceil(gap / 10000) * 10000)} € abschließen (Laufzeit passend zu Kredit bzw. bis Kinder selbständig).`,
+        kredit > 0 ? 'Fallende Summe zur Restschuld kann günstiger sein als eine konstante Summe.' : 'Verlängerungs- und Nachversicherungsoption prüfen (z. B. bei Geburt, Hauskauf).',
+        'Bezugsberechtigung eintragen (Partner/Kinder) und verbindlich dokumentieren.'
+      ],
+      low: base[0] * units, high: base[1] * units,
+      factors: ['Eintrittsalter (' + ageUsed + ' J.)', 'Laufzeit (hier angenommen: 20 Jahre)', 'Nichtraucher / Gesundheitszustand / Beruf', 'Höhe der Versicherungssumme', 'Konstante oder fallende Summe']
+    });
+  } else {
+    renderCoverPlan('risiko', null);
+  }
 
   document.getElementById('rl-result').innerHTML = html;
   checkProtokoll();
@@ -1002,7 +1410,7 @@ function renderPHV() {
 
       <div class="form-row">
         <div class="form-group">
-          <label>Bestehende Deckungssumme (Mio. €)</label>
+          <label for="phv-deckung">Bestehende Deckungssumme (Mio. €)</label>
           <select class="form-input" id="phv-deckung" onchange="calcPHV()">
             <option value="0">Keine PHV vorhanden</option>
             <option value="3">3 Mio. €</option>
@@ -1013,7 +1421,7 @@ function renderPHV() {
           </select>
         </div>
         <div class="form-group">
-          <label>Tarif</label>
+          <label for="phv-tarif">Tarif</label>
           <select class="form-input" id="phv-tarif" onchange="calcPHV()">
             <option value="single">Single-Tarif</option>
             <option value="family" ${answers.family === 'family' || answers.family === 'partner' ? 'selected' : ''}>Familien-/Partnertarif</option>
@@ -1029,7 +1437,7 @@ function renderPHV() {
 }
 
 function calcPHV() {
-  const deckung = parseFloat(document.getElementById('phv-deckung')?.value) || 0;
+  const deckung = numVal('phv-deckung');
   const tarif = document.getElementById('phv-tarif')?.value || 'single';
   const recommended = 10; // Mio
 
@@ -1062,6 +1470,21 @@ function calcPHV() {
     html += `<div class="gap-summary gap-ok" style="margin-top:1rem;">✅ Deckungssumme ausreichend (${deckung} Mio. €)</div>`;
   }
 
+  if (deckung < 10) {
+    const p = PREMIUM_TABLES.phv[tarif] || PREMIUM_TABLES.phv.single;
+    html += renderCoverPlan('phv', {
+      measures: [
+        deckung === 0 ? 'Privathaftpflicht mit mindestens 10 Mio. € pauschaler Deckungssumme abschließen.' : 'Auf einen Tarif mit mindestens 10 Mio. € pauschaler Deckungssumme wechseln bzw. aufstocken.',
+        'Mietsachschäden, Schlüsselverlust, Gefälligkeitsschäden und Forderungsausfall einschließen.',
+        tarif === 'family' ? 'Familientarif (Partner und Kinder mitversichert) wählen.' : 'Bei Partnerschaft oder Kindern auf Familientarif wechseln.'
+      ],
+      low: p[0], high: p[1],
+      factors: ['Single- oder Familientarif', 'Deckungssumme (10 Mio. € vs. 50 Mio. € und mehr)', 'Selbstbeteiligung', 'Zusatzbausteine (z. B. Mietsachschäden, Forderungsausfall)']
+    });
+  } else {
+    renderCoverPlan('phv', null);
+  }
+
   document.getElementById('phv-result').innerHTML = html;
   checkProtokoll();
 }
@@ -1073,26 +1496,34 @@ function renderUnfall() {
       <h3>🤕 Private Unfallversicherung — Invaliditätsleistung berechnen</h3>
       <div class="info-box">
         <strong>Kernleistung:</strong> Einmalzahlung bei dauerhafter Invalidität nach Unfall.<br>
-        <strong>Faustregel:</strong> Grundsumme mindestens <strong>2–3× Jahresbrutto</strong> + Progression (225% oder 350%).
+        <strong>Faustregel:</strong> Grundsumme mindestens <strong>2–3× Jahresbrutto</strong> + Progression (225%, 350% oder 500%).
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>Grundsumme (€)</label>
-          <input type="number" class="form-input" id="uv-grund" placeholder="z.B. 100000" oninput="calcUnfall()">
+          <label for="uv-grund">Grundsumme (€)</label>
+          <input type="number" min="0" class="form-input" id="uv-grund" placeholder="z.B. 100000" oninput="calcUnfall()">
         </div>
         <div class="form-group">
-          <label>Progression</label>
+          <label for="uv-prog">Progression</label>
           <select class="form-input" id="uv-prog" onchange="calcUnfall()">
             <option value="1">Keine (100%)</option>
-            <option value="2.25">225%</option>
-            <option value="3.5" selected>350%</option>
-            <option value="5">500%</option>
+            <option value="225">225%</option>
+            <option value="350" selected>350%</option>
+            <option value="500">500%</option>
           </select>
         </div>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="uv-brutto">Jahresbruttoeinkommen (€), optional</label>
+          <div class="hint">Für die Empfehlung der Grundsumme (3× Jahresbrutto)</div>
+          <input type="number" min="0" class="form-input" id="uv-brutto" placeholder="z.B. 48000" oninput="calcUnfall()">
+        </div>
+        <div></div>
+      </div>
       <div class="form-group">
-        <label>Invaliditätsgrad simulieren (%)</label>
+        <label for="uv-grad">Invaliditätsgrad simulieren (%)</label>
         <div class="hint">Ziehen Sie den Regler um die Auszahlung bei verschiedenen Graden zu sehen</div>
         <input type="range" id="uv-grad" min="1" max="100" value="50" oninput="calcUnfall()" style="width:100%;">
         <div style="text-align:center; font-weight:700; font-size:1.2rem;" id="uv-grad-label">50%</div>
@@ -1101,9 +1532,9 @@ function renderUnfall() {
       <div id="uv-result"></div>
 
       <div class="info-box" style="margin-top:1rem;">
-        <strong>Gliedertaxe (Beispiele Proximus AUB 2022):</strong><br>
+        <strong>Gliedertaxe (typische Beispielwerte, je nach Bedingungen unterschiedlich):</strong><br>
         Arm 70% · Hand 55% · Daumen 20% · Zeigefinger 10% · Bein 70% · Fuß 40% · Auge 50% · Gehör (ein Ohr) 30% · Geruchssinn 10%<br>
-        <strong>Merke:</strong> Bei Invalidität ≥ 50% greift die Progression überproportional!
+        <strong>Merke:</strong> Die Progression wirkt gestaffelt: Erst ab höheren Invaliditätsgraden (über 25 % bzw. 50 %) steigt die Leistung überproportional.
       </div>
     </div>
     <div style="text-align:center;">
@@ -1111,38 +1542,65 @@ function renderUnfall() {
     </div>`;
 }
 
+// Auszahlung mit gestaffelter Progression:
+// S × (min(G,25)·m1 + max(0, min(G,50)−25)·m2 + max(0, G−50)·m3) / 100
+function unfallAuszahlung(S, G, progKey) {
+  const m = (PROGRESSION[progKey] || PROGRESSION[1]).m;
+  return Math.round(S * (Math.min(G, 25) * m[0] + Math.max(0, Math.min(G, 50) - 25) * m[1] + Math.max(0, G - 50) * m[2]) / 100);
+}
+
 function calcUnfall() {
-  const grund = parseFloat(document.getElementById('uv-grund')?.value) || 0;
-  const prog = parseFloat(document.getElementById('uv-prog')?.value) || 1;
+  const grund = numVal('uv-grund');
+  const progKey = parseInt(document.getElementById('uv-prog')?.value) || 1;
   const grad = parseInt(document.getElementById('uv-grad')?.value) || 50;
+  const brutto = numVal('uv-brutto');
 
   document.getElementById('uv-grad-label').textContent = grad + '%';
 
-  if (grund === 0) { document.getElementById('uv-result').innerHTML = ''; return; }
+  if (grund === 0) { delete detailData.unfall; document.getElementById('uv-result').innerHTML = ''; return; }
 
-  // Progression calculation (simplified linear model)
-  let auszahlung;
-  if (prog === 1) {
-    auszahlung = Math.round(grund * grad / 100);
-  } else {
-    // Up to 25%: 1× Grundsumme; above 25%: progression kicks in
-    if (grad <= 25) {
-      auszahlung = Math.round(grund * grad / 100);
-    } else {
-      const base = grund * 0.25;  // first 25% at 1×
-      const extra = grund * prog * (grad - 25) / 100;
-      auszahlung = Math.round(base + extra);
-    }
+  const auszahlung = unfallAuszahlung(grund, grad, progKey);
+  const maxAuszahlung = unfallAuszahlung(grund, 100, progKey);
+  const empfohleneGrund = brutto > 0 ? Math.round(brutto * 3) : 0;
+  const zusatzBedarf = empfohleneGrund > 0 ? Math.max(0, empfohleneGrund - grund) : 0;
+
+  detailData.unfall = { grund, prog: progKey, progLabel: PROGRESSION[progKey].label, grad, auszahlung, maxAuszahlung, brutto, empfohleneGrund, gap: zusatzBedarf };
+
+  let html = `
+    <div style="text-align:center; padding:1.5rem; background: linear-gradient(135deg, #ebf5fb, #d5f5e3); border-radius:10px; margin:1rem 0;">
+      <div style="font-size:0.9rem; color:var(--text-light);">Auszahlung bei ${grad}% Invalidität (${progKey === 1 ? 'ohne Progression' : 'Progression ' + progKey + '%'}):</div>
+      <div style="font-size:2rem; font-weight:700; color:var(--primary);">${fmt(auszahlung)} €</div>
+      <div style="font-size:0.85rem; color:var(--text-light);">Grundsumme: ${fmt(grund)} € · Maximum bei 100% Invalidität: ${fmt(maxAuszahlung)} €</div>
+    </div>`;
+
+  if (empfohleneGrund > 0) {
+    html += zusatzBedarf > 0
+      ? `<div class="gap-summary gap-warning">⚠️ Empfohlene Grundsumme (3× Jahresbrutto): <strong>${fmt(empfohleneGrund)} €</strong> — Lücke: ${fmt(zusatzBedarf)} €</div>`
+      : `<div class="gap-summary gap-ok">✅ Grundsumme erreicht die Empfehlung (3× Jahresbrutto)</div>`;
   }
 
-  detailData.unfall = { grund, prog, grad, auszahlung };
+  // Plan: mit Einkommen → fehlende Grundsumme; ohne Einkommen und ohne bestehende Police → eingegebene Grundsumme
+  const hasIt = (answers.existing || []).includes('unfall');
+  let planSumme = 0;
+  if (empfohleneGrund > 0) planSumme = zusatzBedarf;
+  else if (!hasIt) planSumme = grund;
 
-  const html = `
-    <div style="text-align:center; padding:1.5rem; background: linear-gradient(135deg, #ebf5fb, #d5f5e3); border-radius:10px; margin:1rem 0;">
-      <div style="font-size:0.9rem; color:var(--text-light);">Auszahlung bei ${grad}% Invalidität mit ${prog === 1 ? 'ohne' : Math.round(prog*100) + '%'} Progression:</div>
-      <div style="font-size:2rem; font-weight:700; color:var(--primary);">${auszahlung.toLocaleString('de-DE')} €</div>
-      <div style="font-size:0.85rem; color:var(--text-light);">Grundsumme: ${grund.toLocaleString('de-DE')} € ${prog > 1 ? '× Progression' : ''}</div>
-    </div>`;
+  if (planSumme > 0) {
+    const f = PREMIUM_TABLES.unfallProgFactor[progKey] || 1;
+    const p = PREMIUM_TABLES.unfallPer100k;
+    const units = planSumme / 100000;
+    html += renderCoverPlan('unfall', {
+      measures: [
+        `Private Unfallversicherung mit Grundsumme ${fmt(planSumme)} € ${empfohleneGrund > 0 && hasIt ? '(zusätzlich zur bestehenden Absicherung) ' : ''}und Progression ${PROGRESSION[progKey].label} abschließen.`,
+        'Gliedertaxe, Invaliditätsfrist (mind. 36 Monate) und Mitwirkungsanteil in den Bedingungen prüfen.',
+        'Unfallrente oder Krankenhaustagegeld nur bei Bedarf ergänzen.'
+      ],
+      low: p[0] * f * units, high: p[1] * f * units,
+      factors: ['Grundsumme und Progression', 'Berufsgruppe/Gefahrengruppe', 'Sportarten (Risikosport oft ausgeschlossen)', 'Zusatzbausteine']
+    });
+  } else {
+    renderCoverPlan('unfall', null);
+  }
 
   document.getElementById('uv-result').innerHTML = html;
   checkProtokoll();
@@ -1150,11 +1608,12 @@ function calcUnfall() {
 
 // --- Altersvorsorge Module ---
 function renderAltersvorsorge() {
+  const C = CONSTANTS_2026;
   const job = answers.job || 'employee';
   const productInfo = {
-    employee: { name: 'Riester-Rente / betriebliche AV / Private RV', hint: 'Riester: bis 175 € Grundzulage + 300 € pro Kind. bAV: 2026 bis 302 €/Monat steuerfrei (4% BBG RV).' },
+    employee: { name: 'Riester-Rente / betriebliche AV / Private RV', hint: `Riester: bis 175 € Grundzulage + 300 € pro Kind. bAV: 2026 bis ${fmt(C.bavSvFreiJahr / 12)} €/Monat (${fmt(C.bavSvFreiJahr)} €/Jahr) sozialversicherungsfrei, bis ${fmt(C.bavSteuerfreiJahr / 12)} €/Monat (${fmt(C.bavSteuerfreiJahr)} €/Jahr) steuerfrei.` },
     civil_servant: { name: 'Riester-Rente', hint: 'Beamte können volle Riester-Zulagen nutzen. Beamtenversorgung als Basis.' },
-    self_employed: { name: 'Rürup-Rente (Basisrente) / Private RV', hint: 'Rürup: 2026 bis 27.566 €/Jahr steuerlich absetzbar (100% Sonderausgabenabzug). Keine Kapitalentnahme möglich.' },
+    self_employed: { name: 'Rürup-Rente (Basisrente) / Private RV', hint: `Rürup: 2026 bis ${fmt(C.ruerupMax)} €/Jahr als Sonderausgaben absetzbar. Keine Kapitalentnahme möglich.` },
     student: { name: 'Private Rentenversicherung / ETF-Sparplan', hint: 'Früh anfangen lohnt sich: Zinseszinseffekt über Jahrzehnte.' }
   }[job] || { name: 'Private Altersvorsorge', hint: '' };
 
@@ -1172,35 +1631,52 @@ function renderAltersvorsorge() {
 
       <div class="form-row">
         <div class="form-group">
-          <label>Monatliches Bruttoeinkommen (€)</label>
-          <input type="number" class="form-input" id="av-brutto" placeholder="z.B. 4500" oninput="calcAltersvorsorge()">
+          <label for="av-brutto">Monatliches Bruttoeinkommen (€)</label>
+          <input type="number" min="0" class="form-input" id="av-brutto" placeholder="z.B. 4500" oninput="calcAltersvorsorge()">
         </div>
         <div class="form-group">
-          <label>Monatliches Nettoeinkommen (€)</label>
-          <input type="number" class="form-input" id="av-netto" placeholder="z.B. 2800" oninput="calcAltersvorsorge()">
+          <label for="av-netto">Monatliches Nettoeinkommen (€)</label>
+          <input type="number" min="0" class="form-input" id="av-netto" placeholder="z.B. 2800" oninput="calcAltersvorsorge()">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Aktuelles Alter</label>
-          <input type="number" class="form-input" id="av-alter" placeholder="z.B. 35" oninput="calcAltersvorsorge()">
+          <label for="av-alter">Aktuelles Alter</label>
+          <input type="number" min="16" max="70" class="form-input" id="av-alter" placeholder="z.B. 35" oninput="calcAltersvorsorge()">
         </div>
         <div class="form-group">
-          <label>Gewünschtes Rentenalter</label>
-          <input type="number" class="form-input" id="av-rentenalter" placeholder="67" value="67" oninput="calcAltersvorsorge()">
+          <label for="av-rentenalter">Gewünschtes Rentenalter</label>
+          <input type="number" min="55" max="75" class="form-input" id="av-rentenalter" placeholder="67" value="67" oninput="calcAltersvorsorge()">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Beitragsjahre in GRV (bisherig)</label>
-          <div class="hint">${job === 'self_employed' ? 'Als Selbständige/r evtl. 0 oder nur wenige Jahre' : 'Alter minus Berufseinstiegsalter'}</div>
-          <input type="number" class="form-input" id="av-beitragsjahre" placeholder="z.B. 15" oninput="calcAltersvorsorge()">
+          <label for="av-beitragsjahre">Beitragsjahre in GRV (bisherig)</label>
+          <div class="hint">${job === 'self_employed' ? 'Als Selbständige/r evtl. 0 oder nur wenige Jahre' : job === 'civil_servant' ? 'Beamte: keine GRV-Schätzung (Beamtenversorgung separat)' : 'Alter minus Berufseinstiegsalter'}</div>
+          <input type="number" min="0" class="form-input" id="av-beitragsjahre" placeholder="z.B. 15" oninput="calcAltersvorsorge()">
         </div>
         <div class="form-group">
-          <label>Bestehende private Vorsorge (€/Monat Rente)</label>
-          <div class="hint">Riester, Rürup, bAV, private RV — erwartete Monatsrente</div>
-          <input type="number" class="form-input" id="av-existing" placeholder="0" value="0" oninput="calcAltersvorsorge()">
+          <label for="av-existing">Bestehende private Vorsorge (€/Monat Rente)</label>
+          <div class="hint">Erwartete Monatsrente in heutiger Kaufkraft${job === 'civil_servant' ? ' – hier auch Beamtenversorgung (netto) eintragen' : ''}</div>
+          <input type="number" min="0" class="form-input" id="av-existing" placeholder="0" value="0" oninput="calcAltersvorsorge()">
         </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="av-infl">Inflation (% p.a.)</label>
+          <input type="number" min="0" max="10" step="0.1" class="form-input" id="av-infl" value="${C.inflation}" oninput="calcAltersvorsorge()">
+        </div>
+        <div class="form-group">
+          <label for="av-ra">Rendite Ansparphase (% p.a.)</label>
+          <input type="number" min="0" max="12" step="0.1" class="form-input" id="av-ra" value="${C.renditeAnsparen}" oninput="calcAltersvorsorge()">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="av-rp">Rendite Rentenphase (% p.a.)</label>
+          <input type="number" min="0" max="8" step="0.1" class="form-input" id="av-rp" value="${C.renditeRente}" oninput="calcAltersvorsorge()">
+        </div>
+        <div></div>
       </div>
 
       <div id="av-result"></div>
@@ -1210,83 +1686,118 @@ function renderAltersvorsorge() {
     </div>`;
 }
 
+// Sparrate (jährlich nachschüssig): K × r / ((1+r)^N − 1)
+function sparrateJahr(K, r, N) {
+  return r > 0 ? K * r / (Math.pow(1 + r, N) - 1) : K / N;
+}
+
 function calcAltersvorsorge() {
-  const brutto = parseFloat(document.getElementById('av-brutto')?.value) || 0;
-  const netto = parseFloat(document.getElementById('av-netto')?.value) || 0;
-  const alter = parseFloat(document.getElementById('av-alter')?.value) || 0;
-  const rentenalter = parseFloat(document.getElementById('av-rentenalter')?.value) || 67;
-  const beitragsjahre = parseFloat(document.getElementById('av-beitragsjahre')?.value) || 0;
-  const existing = parseFloat(document.getElementById('av-existing')?.value) || 0;
+  const C = CONSTANTS_2026;
+  const brutto = numVal('av-brutto');
+  const netto = numVal('av-netto');
+  const alter = numVal('av-alter');
+  const rentenalter = numVal('av-rentenalter', 67) || 67;
+  const beitragsjahre = numVal('av-beitragsjahre');
+  const existing = numVal('av-existing');
+  const infl = numVal('av-infl', C.inflation) / 100;
+  const rA = numVal('av-ra', C.renditeAnsparen) / 100;
+  const rP = numVal('av-rp', C.renditeRente) / 100;
 
-  if (netto === 0 || alter === 0) { document.getElementById('av-result').innerHTML = ''; return; }
+  if (netto === 0 || alter === 0) { delete detailData.altersvorsorge; document.getElementById('av-result').innerHTML = ''; return; }
 
-  // Bedarf im Alter: ~80% des letzten Netto
-  const bedarfImAlter = Math.round(netto * 0.80);
-
-  // GRV-Rente Schätzung (Regelaltersrente)
-  let grvRente = 0;
   const isEmployee = answers.job === 'employee';
   const isSelf = answers.job === 'self_employed';
-  const totalBeitragsjahre = beitragsjahre + Math.max(0, rentenalter - alter); // prognostiziert bis Rentenalter
+  const isCivil = answers.job === 'civil_servant';
 
-  if (!isSelf && brutto > 0 && beitragsjahre > 0) {
-    const durchschnitt = 45358;
-    const jahresbrutto = Math.min(brutto * 12, 101400); // BBG RV gedeckelt
-    const epProJahr = jahresbrutto / durchschnitt;
-    const totalEP = epProJahr * totalBeitragsjahre;
-    // Regelaltersrente: Zugangsfaktor 1.0, Rentenartfaktor 1.0
-    grvRente = Math.round(totalEP * 39.32);
+  // Bedarf im Alter: ~80% des letzten Netto (heutige Kaufkraft)
+  const bedarfImAlter = Math.round(netto * 0.80);
+
+  // GRV-Rente (Regelaltersrente, vereinfacht), netto = brutto × (1 − 12 % KV/PV), ohne Steuer
+  const totalBeitragsjahre = beitragsjahre + Math.max(0, rentenalter - alter);
+  let grvBrutto = 0, grvNetto = 0;
+  if (!isSelf && !isCivil && brutto > 0 && beitragsjahre > 0) {
+    const epProJahr = Math.min(brutto * 12, C.bbgRV) / C.durchschnittsentgelt;
+    grvBrutto = Math.round(epProJahr * totalBeitragsjahre * C.rentenwert);
+    grvNetto = Math.round(grvBrutto * (1 - C.kvPvAbzug));
   }
 
-  const totalVorsorge = grvRente + existing;
+  const totalVorsorge = grvNetto + existing;
   const gap = Math.max(0, bedarfImAlter - totalVorsorge);
-  const pctCovered = totalVorsorge > 0 ? Math.min(100, Math.round(totalVorsorge / bedarfImAlter * 100)) : 0;
 
-  // Wie viel monatlich sparen? (grobe Schätzung: 4% Rendite p.a.)
-  const jahresBisRente = Math.max(1, rentenalter - alter);
-  const benoetigtesKapital = gap * 12 * 20; // 20 Jahre Rentenbezug
-  const monatlicheRate = jahresBisRente > 0 ? Math.round(benoetigtesKapital / (jahresBisRente * 12 * ((Math.pow(1.04, jahresBisRente) - 1) / (0.04 / 12 * 12)  || 1))) : 0;
-  // Simplified: use annuity formula
-  const r = 0.04 / 12; // monatliche Rendite
-  const n = jahresBisRente * 12;
-  const sparrate = n > 0 && r > 0 ? Math.round(benoetigtesKapital * r / (Math.pow(1 + r, n) - 1)) : 0;
+  // Kapitalbedarf: Lücke zum Rentenbeginn inflationiert, Entnahme über rentenbezugJahre bei Rendite rP
+  const N = Math.max(1, rentenalter - alter);
+  const T = C.rentenbezugJahre;
+  const gapNominal = gap * Math.pow(1 + infl, N);
+  const annuityFactor = rP > 0 ? (1 - Math.pow(1 + rP, -T)) / rP : T;
+  const kapital = gapNominal * 12 * annuityFactor;
+  const sparrate = Math.round(sparrateJahr(kapital, rA, N) / 12);
+  const sparLow = Math.round(sparrateJahr(kapital, rA + 0.01, N) / 12);
+  const sparHigh = Math.round(sparrateJahr(kapital, Math.max(0, rA - 0.01), N) / 12);
 
-  detailData.altersvorsorge = { netto, brutto, alter, rentenalter, beitragsjahre, existing, bedarfImAlter, grvRente, gap, totalBeitragsjahre, sparrate };
+  detailData.altersvorsorge = {
+    netto, brutto, alter, rentenalter, beitragsjahre, existing, bedarfImAlter, grvBrutto, grvNetto, gap,
+    totalBeitragsjahre, sparrate, kapital: Math.round(kapital), gapNominal: Math.round(gapNominal),
+    infl: infl * 100, rA: rA * 100, rP: rP * 100, jahre: N, bezugJahre: T
+  };
 
   let html = `
     <div class="gap-chart">
       <div class="gap-bar-container">
-        <div class="gap-label"><span>Bedarf im Alter (80% Netto)</span><span>${bedarfImAlter.toLocaleString('de-DE')} €/Monat</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${bedarfImAlter.toLocaleString('de-DE')} €</div></div>
+        <div class="gap-label"><span>Bedarf im Alter (80% Netto, heutige Kaufkraft)</span><span>${fmt(bedarfImAlter)} €/Monat</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill need" style="width:100%">${fmt(bedarfImAlter)} €</div></div>
       </div>
-      ${!isSelf && grvRente > 0 ? `<div class="gap-bar-container">
-        <div class="gap-label"><span>GRV-Rente (geschätzt, ${totalBeitragsjahre} Beitragsjahre)</span><span>${grvRente.toLocaleString('de-DE')} €/Monat</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill" style="width:${Math.min(100, Math.round(grvRente / bedarfImAlter * 100))}%; background: var(--warn);">${grvRente.toLocaleString('de-DE')} €</div></div>
+      ${grvNetto > 0 ? `<div class="gap-bar-container">
+        <div class="gap-label"><span>GRV-Rente netto (geschätzt, ${fmt(totalBeitragsjahre)} Beitragsjahre; brutto ${fmt(grvBrutto)} €)</span><span>${fmt(grvNetto)} €/Monat</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill" style="width:${Math.min(100, Math.round(grvNetto / bedarfImAlter * 100))}%; background: var(--warn);">${fmt(grvNetto)} €</div></div>
       </div>` : ''}
       ${existing > 0 ? `<div class="gap-bar-container">
-        <div class="gap-label"><span>Private Vorsorge (bestehend)</span><span>${existing.toLocaleString('de-DE')} €/Monat</span></div>
-        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${Math.min(100, Math.round(existing / bedarfImAlter * 100))}%">${existing.toLocaleString('de-DE')} €</div></div>
+        <div class="gap-label"><span>Private Vorsorge (bestehend)</span><span>${fmt(existing)} €/Monat</span></div>
+        <div class="gap-bar"><div class="gap-bar-fill have" style="width:${Math.min(100, Math.round(existing / bedarfImAlter * 100))}%">${fmt(existing)} €</div></div>
       </div>` : ''}
     </div>
     ${gap > 0
-      ? `<div class="gap-summary gap-warning">⚠️ Versorgungslücke im Alter: <strong>${gap.toLocaleString('de-DE')} €/Monat</strong>
-        ${sparrate > 0 ? `<br><span style="font-size:0.9rem;">Um diese Lücke zu schließen: ca. <strong>${sparrate.toLocaleString('de-DE')} €/Monat</strong> sparen (bei 4% Rendite p.a., ${jahresBisRente} Jahre, 20 Jahre Rentenbezug)</span>` : ''}</div>`
+      ? `<div class="gap-summary gap-warning">⚠️ Versorgungslücke im Alter: <strong>${fmt(gap)} €/Monat</strong> (heutige Kaufkraft)
+        ${sparrate > 0 ? `<br><span style="font-size:0.9rem;">Benötigtes Kapital bei Rentenbeginn: ca. <strong>${fmt(kapital)} €</strong> (Inflation ${(infl * 100).toLocaleString('de-DE')} %, ${T} Jahre Rentenbezug bei ${(rP * 100).toLocaleString('de-DE')} % Rendite)<br>Sparrate: ca. <strong>${fmt(sparrate)} €/Monat</strong> (bei ${(rA * 100).toLocaleString('de-DE')} % Rendite p.a., ${fmt(N)} Jahre)</span>` : ''}</div>`
       : `<div class="gap-summary gap-ok">✅ Voraussichtlich ausreichend versorgt</div>`
     }
+    <div class="info-box" style="margin-top:1rem;">
+      <strong>Annahmen:</strong> Netto-Rente = Brutto-Rente × (1 − ${Math.round(C.kvPvAbzug * 100)} % KV/PV), <em>ohne Einkommensteuer</em>.
+      GRV-Schätzung: Rentenwert ${C.rentenwert.toLocaleString('de-DE')} €, Durchschnittsentgelt ${fmt(C.durchschnittsentgelt)} €, Zugangsfaktor 1,0, Einkommen konstant fortgeschrieben.
+      Die Lücke wird bis Rentenbeginn inflationiert; Rentenzahlungen sind im Modell konstant. Renditen sind keine Garantie.
+    </div>
     ${isSelf ? `<div class="info-box" style="margin-top:1rem;">
-      <strong>⚠️ Selbständige ohne GRV:</strong> Sie haben keinen gesetzlichen Rentenanspruch (es sei denn, Sie zahlen freiwillig ein).<br>
-      <strong>Rürup-Rente:</strong> Steuerlich voll absetzbar (2026: bis 27.566 €/Jahr), aber kein Kapitalwahlrecht und nicht vererbbar.<br>
+      <strong>⚠️ Selbständige ohne GRV:</strong> Sie haben keinen gesetzlichen Rentenanspruch (es sei denn, Sie zahlen freiwillig ein oder sind versicherungspflichtig, z. B. bestimmte Berufsgruppen).<br>
+      <strong>Rürup-Rente:</strong> Absetzbar bis ${fmt(C.ruerupMax)} €/Jahr (2026), aber kein Kapitalwahlrecht und nicht frei vererbbar.<br>
       <strong>Alternative:</strong> ETF-basierte Altersvorsorge (Schicht 3) bietet mehr Flexibilität, aber weniger Steuervorteil.
     </div>` : ''}
     ${isEmployee ? `<div class="info-box" style="margin-top:1rem;">
       <strong>Für Angestellte empfohlen:</strong><br>
-      • <strong>bAV (Betriebliche AV):</strong> 2026 bis 302 €/Monat (4% BBG RV) sozialversicherungsfrei, bis 604 €/Monat (8% BBG) steuerfrei. Arbeitgeberzuschuss nutzen!<br>
+      • <strong>bAV (Betriebliche AV):</strong> 2026 bis ${fmt(C.bavSvFreiJahr / 12)} €/Monat (4% BBG RV) sozialversicherungsfrei, bis ${fmt(C.bavSteuerfreiJahr / 12)} €/Monat (8% BBG) steuerfrei. Arbeitgeberzuschuss nutzen!<br>
       • <strong>Riester-Rente:</strong> 175 € Grundzulage + 300 € pro Kind/Jahr. Mindestbeitrag: 4% Brutto − Zulagen.<br>
-      • <em>GRV-Schätzung ist vereinfacht (Rentenwert 39,32 € West 2026). Tatsächliche Rente: Renteninformation der DRV beachten.</em>
+      • <em>GRV-Schätzung ist vereinfacht. Tatsächliche Rente: Renteninformation der DRV beachten.</em>
     </div>` : ''}
-    ${!isEmployee && !isSelf ? `<div class="info-box" style="margin-top:1rem;">
+    ${isCivil ? `<div class="info-box" style="margin-top:1rem;">
+      <strong>Beamte:</strong> Keine GRV-Schätzung. Tragen Sie Ihre voraussichtliche Beamtenversorgung (netto, heutige Kaufkraft) bei „Bestehende private Vorsorge" ein.
+    </div>` : ''}
+    ${!isEmployee && !isSelf && !isCivil ? `<div class="info-box" style="margin-top:1rem;">
       <strong>Tipp:</strong> Prüfen Sie Ihre jährliche Renteninformation der DRV für die tatsächlich zu erwartende GRV-Rente.
     </div>` : ''}`;
+
+  if (gap > 0 && sparrate > 0) {
+    const measures = [
+      `Monatlich ca. ${fmt(sparrate)} € (Spanne ${fmt(sparLow)}–${fmt(sparHigh)} €) über ${fmt(N)} Jahre in eine geeignete Vorsorge investieren.`,
+      isSelf ? `Basisrente (Rürup) nutzen: bis ${fmt(C.ruerupMax)} €/Jahr absetzbar; ergänzend flexible Kapitalanlage (Schicht 3).`
+        : isEmployee ? `Betriebliche Altersversorgung mit Arbeitgeberzuschuss prüfen (bis ${fmt(C.bavSvFreiJahr / 12)} €/Monat sozialversicherungsfrei) sowie Riester-Zulagen.`
+        : 'Förderfähige Produkte (Riester) und flexible Kapitalanlage kombinieren.',
+      'Sparrate regelmäßig anpassen (Dynamik) und jährlich mit der Renteninformation abgleichen.'
+    ];
+    html += renderCoverPlan('altersvorsorge', {
+      measures, low: sparLow, high: sparHigh, saving: true, unit: '€/Monat',
+      factors: ['Rendite (hier ±1 Prozentpunkt um ' + (rA * 100).toLocaleString('de-DE') + ' %)', 'Inflation, Rentenbeginn und Rentenbezugsdauer', 'Produktkosten und Besteuerung (nicht berücksichtigt)', 'Förderung (Zulagen, Steuerersparnis)']
+    });
+  } else {
+    renderCoverPlan('altersvorsorge', null);
+  }
 
   document.getElementById('av-result').innerHTML = html;
   checkProtokoll();
@@ -1294,178 +1805,277 @@ function calcAltersvorsorge() {
 
 // ===== PROTOKOLL BUTTON =====
 function checkProtokoll() {
-  if (Object.keys(detailData).length > 0) {
+  if (answers.age || Object.keys(detailData).length > 0) {
     document.getElementById('protokollTab').style.display = '';
   }
 }
 
-// ===== BERATUNGSPROTOKOLL =====
-function generateProtokoll() {
-  document.getElementById('protokollTab').style.display = '';
-  showTab('protokoll');
-
+// ===== ERGEBNISPROTOKOLL =====
+// Das Protokoll wird als neutrales Datenmodell aufgebaut und dann als HTML (Anzeige / Export) oder Text ausgegeben.
+function buildProtokollModel() {
   const now = new Date();
   const dateStr = now.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  const C = CONSTANTS_2026;
+  const sections = [];
 
-  const ageLabels = { young: 'Unter 25', early_career: '25–35', mid_career: '36–50', senior: '51–65', retired: 'Über 65' };
-  const familyLabels = { single: 'Single', partner: 'Partnerschaft', family: 'Familie mit Kindern', single_parent: 'Alleinerziehend' };
-  const jobLabels = { employee: 'Angestellt', civil_servant: 'Beamter', self_employed: 'Selbständig', student: 'Student/Azubi', retired: 'Rentner' };
-  const housingLabels = { rent: 'Zur Miete', condo: 'Eigentumswohnung', house: 'Eigenheim', shared: 'WG / bei Eltern' };
-
-  let html = `
-    <div style="text-align:center; margin-bottom:2rem;">
-      <h2>📋 Beratungsprotokoll</h2>
-      <p style="color:var(--text-light);">Versicherungs-Bedarfsanalyse gemäß § 61 VVG</p>
-    </div>
-
-    <div class="detail-panel">
-      <h3>1. Allgemeine Angaben</h3>
-      <table style="width:100%; border-collapse:collapse;">
-        <tr><td style="padding:0.4rem; font-weight:600; width:40%;">Datum / Uhrzeit</td><td style="padding:0.4rem;">${dateStr}, ${timeStr}</td></tr>
-        <tr style="background:#f8f9fa;"><td style="padding:0.4rem; font-weight:600;">Alter</td><td style="padding:0.4rem;">${ageLabels[answers.age] || '—'}</td></tr>
-        <tr><td style="padding:0.4rem; font-weight:600;">Familiensituation</td><td style="padding:0.4rem;">${familyLabels[answers.family] || '—'}</td></tr>
-        <tr style="background:#f8f9fa;"><td style="padding:0.4rem; font-weight:600;">Berufsstatus</td><td style="padding:0.4rem;">${jobLabels[answers.job] || '—'}</td></tr>
-        <tr><td style="padding:0.4rem; font-weight:600;">Wohnsituation</td><td style="padding:0.4rem;">${housingLabels[answers.housing] || '—'}</td></tr>
-        <tr style="background:#f8f9fa;"><td style="padding:0.4rem; font-weight:600;">Bestehende Versicherungen</td><td style="padding:0.4rem;">${(answers.existing || []).join(', ') || 'Keine angegeben'}</td></tr>
-      </table>
-    </div>
-
-    <div class="detail-panel">
-      <h3>2. Versicherungsempfehlungen</h3>`;
-
-  const recs = generateRecommendations();
-  const groups = { pflicht: '🔴 Pflicht', essential: '🟠 Dringend', empfohlen: '🔵 Empfohlen', optional: '🟣 Optional' };
-  recs.forEach(r => {
-    html += `<div style="padding:0.5rem 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:0.5rem;">
-      <span>${r.icon}</span>
-      <div style="flex:1;">
-        <strong>${r.name}</strong>
-        <span style="font-size:0.75rem; padding:1px 6px; border-radius:3px; background:#eee; margin-left:0.5rem;">${groups[r.tag] || ''}</span>
-        ${r.hasIt ? '<span style="color:var(--accent); margin-left:0.5rem; font-size:0.85rem;">✓ vorhanden</span>' : ''}
-      </div>
-    </div>`;
+  // 1. Angaben (alle 7 Fragen)
+  sections.push({
+    title: '1. Ihre Angaben',
+    rows: [
+      ['Datum / Uhrzeit', `${dateStr}, ${timeStr}`],
+      ['Alter', labelOf('age', answers.age)],
+      ['Familiensituation', labelOf('family', answers.family)],
+      ['Berufsstatus', labelOf('job', answers.job)],
+      ['Wohnsituation', labelOf('housing', answers.housing)],
+      ['Fahrzeug', labelOf('vehicle', answers.vehicle)],
+      ['Bestehende Versicherungen', labelsOf('existing', answers.existing) || 'Keine angegeben'],
+      ['Besondere Umstände', labelsOf('extras', answers.extras) || 'Keine angegeben']
+    ]
   });
-  html += '</div>';
 
-  // Detail results
-  if (Object.keys(detailData).length > 0) {
-    html += '<div class="detail-panel"><h3>3. Detaillierte Lückenanalyse</h3>';
+  // 2. Empfehlungen
+  const recs = generateRecommendations();
+  const tagNames = { pflicht: 'Pflicht', essential: 'Dringend', empfohlen: 'Empfohlen', optional: 'Optional' };
+  sections.push({
+    title: '2. Versicherungsempfehlungen',
+    rows: recs.map(r => [r.name, tagNames[r.tag] + (r.hasIt ? ' – vorhanden' : '')])
+  });
 
-    if (detailData.bu) {
-      const d = detailData.bu;
-      html += `<div style="margin-bottom:1.5rem;">
-        <h4 style="color:var(--primary);">💼 Berufsunfähigkeitsversicherung</h4>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-          <tr><td style="padding:0.3rem; font-weight:600;">Nettoeinkommen</td><td style="padding:0.3rem;">${d.netto.toLocaleString('de-DE')} €/Monat</td></tr>
-          <tr style="background:#f8f9fa;"><td style="padding:0.3rem; font-weight:600;">Empfohlene BU-Rente (78%)</td><td style="padding:0.3rem;">${d.recommended.toLocaleString('de-DE')} €/Monat</td></tr>
-          ${d.emRente ? `<tr style="background:#fff3cd;"><td style="padding:0.3rem; font-weight:600;">Geschätzte EM-Rente (GRV)</td><td style="padding:0.3rem;">${d.emRente.toLocaleString('de-DE')} €/Monat</td></tr>` : ''}
-          <tr><td style="padding:0.3rem; font-weight:600;">Bestehende BU-Rente</td><td style="padding:0.3rem;">${d.existing.toLocaleString('de-DE')} €/Monat</td></tr>
-          <tr style="background:#fadbd8;"><td style="padding:0.3rem; font-weight:700;">Versorgungslücke</td><td style="padding:0.3rem; font-weight:700; color:${d.gap > 0 ? 'var(--danger)' : 'var(--accent)'};">${d.gap > 0 ? d.gap.toLocaleString('de-DE') + ' €/Monat' : 'Keine'}</td></tr>
-        </table>
-      </div>`;
+  // 3. Lückenanalyse
+  const subs = [];
+  const gapRow = (label, v, unit) => [label, v > 0 ? `${fmt(v)} ${unit}` : 'Keine', v > 0 ? 'gap' : 'ok'];
+  if (detailData.bu) {
+    const d = detailData.bu;
+    const rows = [
+      ['Bruttoeinkommen', d.brutto > 0 ? `${fmt(d.brutto)} €/Monat` : 'nicht angegeben'],
+      ['Nettoeinkommen', `${fmt(d.netto)} €/Monat`],
+      ['Alter / Beitragsjahre GRV', `${d.alter > 0 ? d.alter : '—'} / ${d.beitragsjahre > 0 ? d.beitragsjahre : '—'}`],
+      ['Berufsrisiko (Tätigkeit)', d.riskLabel],
+      ['Status', d.status],
+      ['Empfohlene BU-Rente (78 % Netto)', `${fmt(d.recommended)} €/Monat`],
+      ['Bestehende BU-Rente', `${fmt(d.existing)} €/Monat`]
+    ];
+    if (d.emNetto > 0) rows.push([`GRV EM-Rente netto (${d.emOverride ? 'Ihre Angabe' : 'geschätzt'}, nur bei voller Erwerbsminderung)`, `${fmt(d.emNetto)} €/Monat`]);
+    rows.push(gapRow('Szenario 1: Lücke ohne EM-Rente (konservativ)', d.gapOhneEM, '€/Monat'));
+    if (d.emNetto > 0) rows.push(gapRow('Szenario 2: Lücke mit EM-Rente', d.gapMitEM, '€/Monat'));
+    subs.push({ title: MODULE_TITLES.bu, rows });
+  }
+  if (detailData.altersvorsorge) {
+    const d = detailData.altersvorsorge;
+    const rows = [
+      ['Nettoeinkommen', `${fmt(d.netto)} €/Monat`],
+      ['Alter / Rentenalter', `${d.alter} / ${d.rentenalter}`],
+      ['Bedarf im Alter (80 % Netto, heutige Kaufkraft)', `${fmt(d.bedarfImAlter)} €/Monat`]
+    ];
+    if (d.grvNetto > 0) rows.push([`GRV-Rente netto (geschätzt, ${fmt(d.totalBeitragsjahre)} Beitragsjahre)`, `${fmt(d.grvNetto)} €/Monat (brutto ${fmt(d.grvBrutto)} €)`]);
+    if (d.existing > 0) rows.push(['Private Vorsorge (bestehend)', `${fmt(d.existing)} €/Monat`]);
+    rows.push(gapRow('Versorgungslücke', d.gap, '€/Monat'));
+    if (d.gap > 0) {
+      rows.push(['Kapitalbedarf bei Rentenbeginn', `ca. ${fmt(d.kapital)} €`]);
+      rows.push(['Sparrate', `ca. ${fmt(d.sparrate)} €/Monat`]);
     }
-
-    if (detailData.altersvorsorge) {
-      const d = detailData.altersvorsorge;
-      html += `<div style="margin-bottom:1.5rem;">
-        <h4 style="color:var(--primary);">🏦 Private Altersvorsorge</h4>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-          <tr><td style="padding:0.3rem; font-weight:600;">Nettoeinkommen</td><td style="padding:0.3rem;">${d.netto.toLocaleString('de-DE')} €/Monat</td></tr>
-          <tr style="background:#f8f9fa;"><td style="padding:0.3rem; font-weight:600;">Bedarf im Alter (80% Netto)</td><td style="padding:0.3rem;">${d.bedarfImAlter.toLocaleString('de-DE')} €/Monat</td></tr>
-          ${d.grvRente > 0 ? `<tr><td style="padding:0.3rem; font-weight:600;">GRV-Rente (geschätzt, ${d.totalBeitragsjahre} BJ)</td><td style="padding:0.3rem;">${d.grvRente.toLocaleString('de-DE')} €/Monat</td></tr>` : ''}
-          ${d.existing > 0 ? `<tr><td style="padding:0.3rem; font-weight:600;">Private Vorsorge (bestehend)</td><td style="padding:0.3rem;">${d.existing.toLocaleString('de-DE')} €/Monat</td></tr>` : ''}
-          <tr style="background:#fadbd8;"><td style="padding:0.3rem; font-weight:700;">Versorgungslücke</td><td style="padding:0.3rem; font-weight:700; color:${d.gap > 0 ? 'var(--danger)' : 'var(--accent)'};">${d.gap > 0 ? d.gap.toLocaleString('de-DE') + ' €/Monat' : 'Keine'}</td></tr>
-          ${d.sparrate > 0 ? `<tr style="background:#d5f5e3;"><td style="padding:0.3rem; font-weight:600;">Empfohlene Sparrate</td><td style="padding:0.3rem;">ca. ${d.sparrate.toLocaleString('de-DE')} €/Monat</td></tr>` : ''}
-        </table>
-      </div>`;
+    subs.push({ title: MODULE_TITLES.altersvorsorge, rows });
+  }
+  if (detailData.hausrat) {
+    const d = detailData.hausrat;
+    subs.push({ title: MODULE_TITLES.hausrat, rows: [
+      ['Wohnfläche', `${fmt(d.flaeche)} m²`],
+      [`Empfohlene Versicherungssumme (${fmt(d.level)} €/m²${d.fahrrad > 0 ? ' + Fahrräder' : ''})`, `${fmt(d.recommended)} €`],
+      ['Bestehende Versicherungssumme', `${fmt(d.existing)} €`],
+      gapRow('Differenz', d.gap, '€')
+    ] });
+  }
+  if (detailData.risiko) {
+    const d = detailData.risiko;
+    const rows = [
+      ['Jahresbruttoeinkommen', `${fmt(d.brutto)} €`],
+      [`Einkommensbedarf (${d.factor}× Brutto)`, `${fmt(d.fromIncome)} €`]
+    ];
+    if (d.kredit > 0) rows.push(['zzgl. Restschuld', `${fmt(d.kredit)} €`]);
+    rows.push(['Empfohlene Versicherungssumme', `${fmt(d.recommended)} €`]);
+    rows.push(['Bestehende Versicherungssumme', `${fmt(d.existing)} €`]);
+    rows.push(gapRow('Versorgungslücke', d.gap, '€'));
+    subs.push({ title: MODULE_TITLES.risiko, rows });
+  }
+  if (detailData.unfall) {
+    const d = detailData.unfall;
+    const rows = [
+      ['Grundsumme', `${fmt(d.grund)} €`],
+      ['Progression', d.progLabel],
+      [`Beispiel: ${d.grad} % Invalidität`, `${fmt(d.auszahlung)} €`],
+      ['Maximalleistung bei 100 % Invalidität', `${fmt(d.maxAuszahlung)} €`]
+    ];
+    if (d.empfohleneGrund > 0) {
+      rows.push(['Empfohlene Grundsumme (3× Jahresbrutto)', `${fmt(d.empfohleneGrund)} €`]);
+      rows.push(gapRow('Lücke Grundsumme', d.gap, '€'));
     }
+    subs.push({ title: MODULE_TITLES.unfall, rows });
+  }
+  if (detailData.phv) {
+    const d = detailData.phv;
+    subs.push({ title: MODULE_TITLES.phv, rows: [
+      ['Deckungssumme', d.deckung > 0 ? `${d.deckung} Mio. €` : 'Keine PHV'],
+      ['Empfohlen', `≥ ${d.recommended} Mio. €`],
+      ['Bewertung', d.deckung >= 10 ? 'Ausreichend' : d.deckung > 0 ? 'Zu niedrig' : 'Fehlend', d.deckung >= 10 ? 'ok' : 'gap']
+    ] });
+  }
+  if (subs.length > 0) sections.push({ title: '3. Detaillierte Lückenanalyse', subs });
+  else sections.push({ title: '3. Detaillierte Lückenanalyse', paras: ['Es wurde keine Detailanalyse durchgeführt. Über „Vertiefen" in der Ergebnisliste können Sie Lücken berechnen.'] });
 
-    if (detailData.hausrat) {
-      const d = detailData.hausrat;
-      html += `<div style="margin-bottom:1.5rem;">
-        <h4 style="color:var(--primary);">🏠 Hausratversicherung</h4>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-          <tr><td style="padding:0.3rem; font-weight:600;">Wohnfläche</td><td style="padding:0.3rem;">${d.flaeche} m²</td></tr>
-          <tr style="background:#f8f9fa;"><td style="padding:0.3rem; font-weight:600;">Empfohlene VS (${d.level} €/m²)</td><td style="padding:0.3rem;">${d.recommended.toLocaleString('de-DE')} €</td></tr>
-          <tr><td style="padding:0.3rem; font-weight:600;">Bestehende VS</td><td style="padding:0.3rem;">${d.existing.toLocaleString('de-DE')} €</td></tr>
-          <tr style="background:#fadbd8;"><td style="padding:0.3rem; font-weight:700;">Differenz</td><td style="padding:0.3rem; font-weight:700; color:${d.gap > 0 ? 'var(--danger)' : 'var(--accent)'};">${d.gap > 0 ? d.gap.toLocaleString('de-DE') + ' €' : 'Ausreichend'}</td></tr>
-        </table>
-      </div>`;
-    }
-
-    if (detailData.risiko) {
-      const d = detailData.risiko;
-      html += `<div style="margin-bottom:1.5rem;">
-        <h4 style="color:var(--primary);">👨‍👩‍👧 Risikolebensversicherung</h4>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-          <tr><td style="padding:0.3rem; font-weight:600;">Jahresbruttoeinkommen</td><td style="padding:0.3rem;">${d.brutto.toLocaleString('de-DE')} €</td></tr>
-          <tr style="background:#f8f9fa;"><td style="padding:0.3rem; font-weight:600;">Empfohlen (${d.factor}× Brutto)</td><td style="padding:0.3rem;">${d.recommended.toLocaleString('de-DE')} €</td></tr>
-          ${d.kredit > 0 ? `<tr><td style="padding:0.3rem; font-weight:600;">davon Kreditsicherung</td><td style="padding:0.3rem;">${d.kredit.toLocaleString('de-DE')} €</td></tr>` : ''}
-          <tr><td style="padding:0.3rem; font-weight:600;">Bestehende VS</td><td style="padding:0.3rem;">${d.existing.toLocaleString('de-DE')} €</td></tr>
-          <tr style="background:#fadbd8;"><td style="padding:0.3rem; font-weight:700;">Versorgungslücke</td><td style="padding:0.3rem; font-weight:700; color:${d.gap > 0 ? 'var(--danger)' : 'var(--accent)'};">${d.gap > 0 ? d.gap.toLocaleString('de-DE') + ' €' : 'Keine'}</td></tr>
-        </table>
-      </div>`;
-    }
-
-    if (detailData.unfall) {
-      const d = detailData.unfall;
-      html += `<div style="margin-bottom:1.5rem;">
-        <h4 style="color:var(--primary);">🤕 Private Unfallversicherung</h4>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-          <tr><td style="padding:0.3rem; font-weight:600;">Grundsumme</td><td style="padding:0.3rem;">${d.grund.toLocaleString('de-DE')} €</td></tr>
-          <tr style="background:#f8f9fa;"><td style="padding:0.3rem; font-weight:600;">Progression</td><td style="padding:0.3rem;">${Math.round(d.prog * 100)}%</td></tr>
-          <tr><td style="padding:0.3rem; font-weight:600;">Beispiel: ${d.grad}% Invalidität</td><td style="padding:0.3rem; font-weight:700;">${d.auszahlung.toLocaleString('de-DE')} €</td></tr>
-        </table>
-      </div>`;
-    }
-
-    if (detailData.phv) {
-      const d = detailData.phv;
-      html += `<div style="margin-bottom:1.5rem;">
-        <h4 style="color:var(--primary);">⚡ Privathaftpflichtversicherung</h4>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-          <tr><td style="padding:0.3rem; font-weight:600;">Deckungssumme</td><td style="padding:0.3rem;">${d.deckung > 0 ? d.deckung + ' Mio. €' : 'Keine PHV'}</td></tr>
-          <tr style="background:#f8f9fa;"><td style="padding:0.3rem; font-weight:600;">Empfohlen</td><td style="padding:0.3rem;">≥ ${d.recommended} Mio. €</td></tr>
-          <tr><td style="padding:0.3rem; font-weight:600;">Bewertung</td><td style="padding:0.3rem; font-weight:700; color:${d.deckung >= 10 ? 'var(--accent)' : 'var(--danger)'};">${d.deckung >= 10 ? 'Ausreichend' : d.deckung > 0 ? 'Zu niedrig' : 'Fehlend!'}</td></tr>
-        </table>
-      </div>`;
-    }
-
-    html += '</div>';
+  // 4. Maßnahmenplan + 5. Beitragssumme
+  const planModules = CALC_MODULES.filter(m => detailData[m] && detailData[m].plan);
+  if (planModules.length > 0) {
+    const planSubs = planModules.map(m => {
+      const p = detailData[m].plan;
+      const range = p.low === p.high ? `ca. ${fmt(p.high)} ${p.unit}` : `ca. ${fmt(p.low)} bis ${fmt(p.high)} ${p.unit}`;
+      return { title: MODULE_TITLES[m], list: p.measures, rows: [[p.saving ? 'Geschätzte Sparrate' : 'Geschätzter Beitrag', range]], note: 'Einflussfaktoren: ' + p.factors.join('; ') };
+    });
+    sections.push({ title: '4. Maßnahmenplan', subs: planSubs });
+    const sumLow = planModules.reduce((s, m) => s + detailData[m].plan.low, 0);
+    const sumHigh = planModules.reduce((s, m) => s + detailData[m].plan.high, 0);
+    sections.push({
+      title: '5. Geschätzte Gesamtbelastung',
+      rows: [['Summe der geschätzten Beiträge und Sparraten', `ca. ${fmt(sumLow)} bis ${fmt(sumHigh)} €/Monat`, 'sum']],
+      paras: ['Die Summe enthält ' + (detailData.altersvorsorge && detailData.altersvorsorge.plan ? 'auch die Sparrate für die Altersvorsorge (keine Versicherungsprämie). ' : '') + PREMIUM_TABLES.fixText]
+    });
+  } else {
+    sections.push({ title: '4. Maßnahmenplan', paras: ['Aus der durchgeführten Analyse ergibt sich kein rechnerischer Handlungsbedarf bzw. es wurden keine Detailanalysen durchgeführt.'] });
   }
 
-  // Footer
-  html += `
-    <div class="detail-panel" style="border-top-color: var(--warn);">
-      <h3>⚠️ Rechtliche Hinweise</h3>
-      <p style="font-size:0.88rem;">
-        Diese automatisierte Bedarfsanalyse dient ausschließlich der ersten Orientierung und stellt <strong>keine Versicherungsberatung gemäß § 61 VVG</strong> dar.
-        Die Empfehlungen basieren auf allgemeinen Faustregeln und können individuelle Umstände nicht vollständig berücksichtigen.
-        Für eine verbindliche Beratung wenden Sie sich bitte an einen zugelassenen Versicherungsvermittler (§ 34d GewO).
-      </p>
-      <p style="font-size:0.82rem; color: var(--text-light); margin-top:0.5rem;">
-        Tool: Versicherungs-Bedarfsanalyse | 34d.qi-kleinod.com | Erstellt: ${dateStr} ${timeStr}
-      </p>
-    </div>
+  // 6. Annahmen
+  const assumptions = [
+    `Konstanten Stand ${C.stand}: Durchschnittsentgelt ${fmt(C.durchschnittsentgelt)} €, Rentenwert ${C.rentenwert.toLocaleString('de-DE')} €, Beitragsbemessungsgrenze RV ${fmt(C.bbgRV)} €/Jahr.`,
+    `Empfohlene BU-Rente: 78 % des Nettoeinkommens. Bedarf im Alter: 80 % des Nettoeinkommens.`,
+    `GRV-Netto-Schätzung: Abzug ${Math.round(C.kvPvAbzug * 100)} % KV/PV (EM-Rente: Faktor ${C.emNettoFaktor.toLocaleString('de-DE')}); Einkommensteuer ist nicht berücksichtigt.`,
+    `EM-Rente: Zurechnungszeit bis ${C.zurechnungsEnde} zu 100 %, Zugangsfaktor ${C.emZugangsfaktor.toLocaleString('de-DE')}; gilt nur bei voller Erwerbsminderung.`
+  ];
+  if (detailData.altersvorsorge) {
+    const d = detailData.altersvorsorge;
+    assumptions.push(`Altersvorsorge: Inflation ${d.infl.toLocaleString('de-DE')} % p.a., Rendite Ansparphase ${d.rA.toLocaleString('de-DE')} % p.a., Rendite Rentenphase ${d.rP.toLocaleString('de-DE')} % p.a., ${d.bezugJahre} Jahre Rentenbezug.`);
+  }
+  assumptions.push('Beiträge sind Orientierungswerte (Stand 11/2026); sie hängen u. a. von Anbieter, Gesundheitszustand und Tarif ab.');
+  sections.push({ title: '6. Annahmen und Berechnungsgrundlagen', list: assumptions });
 
+  // 7. Gelesene Informationen
+  const readTitles = [...infoRead].map(k => INFO_MODULES[k]).filter(Boolean).map(m => m.title);
+  sections.push({
+    title: '7. Eingesehene Informationsseiten',
+    list: readTitles.length ? readTitles : ['Keine'],
+  });
+
+  // 8. Hinweis
+  sections.push({
+    title: '8. Wichtiger Hinweis',
+    paras: [
+      'Diese automatisierte Bedarfsanalyse dient ausschließlich der ersten Orientierung. Sie ist keine Versicherungs- oder Anlageberatung und ersetzt keine individuelle Beratung. Die Ergebnisse beruhen auf allgemeinen Faustregeln und vereinfachten Annahmen und können individuelle Umstände nicht vollständig berücksichtigen.',
+      'Für eine verbindliche Beratung wenden Sie sich bitte an einen zugelassenen Versicherungsvermittler oder Versicherungsberater.'
+    ],
+    warn: true
+  });
+
+  return { title: 'Ergebnisprotokoll', subtitle: 'Versicherungs-Bedarfsanalyse – Orientierungshilfe', dateStr, timeStr, sections };
+}
+
+function rowStyleFor(flag) {
+  return flag === 'gap' ? 'background:#fadbd8; font-weight:700;' : flag === 'ok' ? 'background:#d5f5e3;' : flag === 'sum' ? 'background:#d6eaf8; font-weight:700;' : '';
+}
+function rowsToHtml(rows) {
+  return `<table style="width:100%; border-collapse:collapse; font-size:0.92rem;">${rows.map((r, i) =>
+    `<tr style="${rowStyleFor(r[2]) || (i % 2 ? 'background:#f8f9fa;' : '')}"><td style="padding:0.35rem 0.4rem; font-weight:600; width:48%; vertical-align:top;">${esc(r[0])}</td><td style="padding:0.35rem 0.4rem;">${esc(r[1])}</td></tr>`).join('')}</table>`;
+}
+function blockToHtml(b, isSub) {
+  let h = '';
+  if (b.rows) h += rowsToHtml(b.rows);
+  if (b.list) h += `<ul style="margin:0.4rem 0 0.4rem 1.2rem; font-size:0.92rem;">${b.list.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  if (b.paras) h += b.paras.map(p => `<p style="font-size:0.9rem; margin:0.4rem 0;">${esc(p)}</p>`).join('');
+  if (b.note) h += `<p style="font-size:0.8rem; color:#7f8c8d; margin:0.3rem 0;">${esc(b.note)}</p>`;
+  return h;
+}
+// bodyOnly=true: nur Inhalt (für Anzeige), sonst ohne Aktionsleiste
+function protokollToHtml(model) {
+  let html = `<div style="text-align:center; margin-bottom:2rem;">
+      <h2>📋 ${esc(model.title)}</h2>
+      <p style="color:#7f8c8d;">${esc(model.subtitle)}</p>
+    </div>`;
+  model.sections.forEach(sec => {
+    html += `<div class="detail-panel"${sec.warn ? ' style="border-top-color: var(--warn);"' : ''}><h3>${esc(sec.title)}</h3>`;
+    html += blockToHtml(sec);
+    (sec.subs || []).forEach(sb => {
+      html += `<div style="margin:1rem 0 1.25rem;"><h4 style="color:#1a5276; margin-bottom:0.3rem;">${esc(sb.title)}</h4>${blockToHtml(sb, true)}</div>`;
+    });
+    html += '</div>';
+  });
+  html += `<p style="font-size:0.82rem; color:#7f8c8d; text-align:center;">Tool: Versicherungs-Bedarfsanalyse | 34d.qi-kleinod.com | Erstellt: ${esc(model.dateStr)} ${esc(model.timeStr)}</p>`;
+  return html;
+}
+function protokollToText(model) {
+  const L = [];
+  const bar = '='.repeat(60);
+  L.push(bar, model.title.toUpperCase(), model.subtitle, `Erstellt: ${model.dateStr} ${model.timeStr}`, bar, '');
+  const block = (b, indent) => {
+    const pad = indent || '';
+    if (b.rows) b.rows.forEach(r => L.push(`${pad}${r[0]}: ${r[1]}`));
+    if (b.list) b.list.forEach(x => L.push(`${pad}- ${x}`));
+    if (b.paras) b.paras.forEach(p => L.push(`${pad}${p}`));
+    if (b.note) L.push(`${pad}(${b.note})`);
+  };
+  model.sections.forEach(sec => {
+    L.push(sec.title, '-'.repeat(sec.title.length));
+    block(sec);
+    (sec.subs || []).forEach(sb => { L.push('', `* ${sb.title}`); block(sb, '  '); });
+    L.push('');
+  });
+  L.push('Tool: Versicherungs-Bedarfsanalyse | 34d.qi-kleinod.com');
+  return L.join('\n');
+}
+
+function generateProtokoll() {
+  const model = buildProtokollModel();
+  let html = protokollToHtml(model);
+  html += `
     <div class="protokoll-actions no-print">
       <button class="btn btn-primary" onclick="window.print()" style="font-size:1.05rem; padding:0.8rem 2rem;">🖨️ Protokoll drucken / als PDF speichern</button>
       <p style="margin-top:0.5rem;">Tipp: Wählen Sie im Druckdialog „Als PDF speichern" für eine digitale Kopie.</p>
-      <button class="btn btn-secondary" onclick="showTab('result')" style="margin-top:0.5rem;">← Zurück zum Ergebnis</button>
+      <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; margin-top:0.5rem;">
+        <button class="btn btn-accent" onclick="exportProtokoll('html')">💾 Als HTML speichern</button>
+        <button class="btn btn-accent" onclick="exportProtokoll('txt')">📄 Als Text speichern</button>
+        <button class="btn btn-secondary" onclick="showTab('result')">← Zurück zum Ergebnis</button>
+      </div>
     </div>`;
-
   document.getElementById('protokollContent').innerHTML = html;
+}
+
+function downloadBlob(content, mime, filename) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportProtokoll(kind) {
+  const model = buildProtokollModel();
+  const stamp = new Date().toISOString().slice(0, 10);
+  if (kind === 'html') {
+    const doc = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Ergebnisprotokoll</title>
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;color:#2c3e50;line-height:1.5;max-width:800px;margin:2rem auto;padding:0 1rem;}
+.detail-panel{border:1px solid #dce1e6;border-top:4px solid #2980b9;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;}
+h3{color:#1a5276;margin-bottom:0.5rem;}
+@media print{.detail-panel{break-inside:avoid;}}
+</style></head><body>${protokollToHtml(model)}</body></html>`;
+    downloadBlob(doc, 'text/html;charset=utf-8', `Ergebnisprotokoll_${stamp}.html`);
+  } else {
+    downloadBlob(protokollToText(model), 'text/plain;charset=utf-8', `Ergebnisprotokoll_${stamp}.txt`);
+  }
 }
 
 function showTab(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.getElementById('sec-' + tab).classList.add('active');
-  const tabNames = { overview: 'Übersicht', quiz: 'Analyse', result: 'Ergebnis', detail: 'Detailanalyse', protokoll: 'Protokoll' };
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    if (b.textContent.includes(tabNames[tab] || '')) b.classList.add('active');
-  });
   if (tab === 'protokoll') generateProtokoll();
   window.scrollTo(0, 0);
 }
