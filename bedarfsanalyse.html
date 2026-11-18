@@ -253,9 +253,36 @@
   .info-module h4 { margin: 1rem 0 0.3rem; color: var(--primary); }
   .tab-btn:focus-visible, .btn:focus-visible, .btn-vertiefen:focus-visible, .opt-btn:focus-visible, .form-input:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 2px; }
 
+  /* Status auf Ergebniskarten */
+  .r-status { display: none; margin-top: 0.45rem; font-size: 0.85rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; }
+  .r-status.show { display: block; width: fit-content; }
+  .r-status.ok { background: #d5f5e3; color: #1e8449; }
+  .r-status.gap { background: #fadbd8; color: var(--danger); }
+  .r-status.read { background: #ebf5fb; color: var(--primary); }
+
+  /* Modul-Navigation (Detail) */
+  .chip-bar { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.25rem 0.1rem 0.75rem; margin-bottom: 0.75rem; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+  .chip { flex: 0 0 auto; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0.4rem 0.85rem; border: 2px solid var(--border); border-radius: 999px; background: white; font-family: inherit; font-size: 0.82rem; font-weight: 600; color: var(--text-light); cursor: pointer; transition: all 0.15s; }
+  .chip:hover { border-color: var(--primary-light); color: var(--primary); }
+  .chip.done { border-color: var(--accent); background: #f0f9f4; color: #1e8449; }
+  .chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+  .chip-check:empty { display: none; }
+  .chip-check { margin-right: 0.3rem; }
+  .chip:focus-visible, .resume-banner .btn:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 2px; }
+
+  /* Toast */
+  .toast { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 300; background: #1e8449; color: white; padding: 0.7rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.92rem; box-shadow: 0 4px 16px rgba(0,0,0,0.2); opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity 0.25s, transform 0.25s; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+  /* Fortsetzen-Hinweis */
+  .resume-banner { max-width: 900px; margin: 1rem auto 0; padding: 0.9rem 1.1rem; background: #ebf5fb; border: 1px solid var(--primary-light); border-left: 4px solid var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; font-size: 0.92rem; }
+  .resume-banner[hidden] { display: none; }
+  .resume-banner .resume-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
   /* Print styles: nur das Ergebnisprotokoll drucken */
   @media print {
-    .tabs, .header, .btn-vertiefen, .btn, .no-print, .protokoll-actions { display: none !important; }
+    .tabs, .header, .btn-vertiefen, .btn, .no-print, .protokoll-actions, .toast, .resume-banner, .chip-bar { display: none !important; }
     .section { display: none !important; }
     #sec-protokoll { display: block !important; max-width: 100%; margin: 0; padding: 0; }
     .detail-panel { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
@@ -266,6 +293,7 @@
     .tab-btn { padding: 0.75rem 0.6rem; font-size: 0.78rem; }
     .form-row { grid-template-columns: 1fr; }
     .opt-grid { grid-template-columns: 1fr 1fr; }
+    .toast { left: 1rem; right: 1rem; bottom: 1rem; text-align: center; }
   }
 </style>
 </head>
@@ -282,6 +310,14 @@
   <button class="tab-btn" data-tab="result" onclick="showTab('result')" id="resultTab" style="display:none">📊 Ergebnis</button>
   <button class="tab-btn" data-tab="detail" onclick="showTab('detail')" id="detailTab" style="display:none">🔬 Vertiefung</button>
   <button class="tab-btn" data-tab="protokoll" onclick="showTab('protokoll')" id="protokollTab" style="display:none">📋 Protokoll</button>
+</div>
+
+<div class="resume-banner no-print" id="resumeBanner" role="region" aria-label="Letzte Analyse" hidden>
+  <span>🔄 <strong>Letzte Analyse fortsetzen?</strong> Ihre Angaben aus dieser Sitzung sind noch gespeichert.</span>
+  <div class="resume-actions">
+    <button type="button" class="btn btn-accent" onclick="resumeAnalysis()">Fortsetzen</button>
+    <button type="button" class="btn btn-secondary" onclick="discardSaved()">Neu starten</button>
+  </div>
 </div>
 
 <!-- ====== ÜBERSICHT ====== -->
@@ -362,6 +398,7 @@
 <div class="section" id="sec-detail">
   <h2 style="text-align:center; margin-bottom: 0.5rem;">🔬 Vertiefung</h2>
   <p style="text-align:center; color: var(--text-light); margin-bottom: 1.5rem;">Geben Sie Ihre konkreten Zahlen ein oder lesen Sie vertiefende Informationen</p>
+  <nav class="chip-bar no-print" id="detailNav" aria-label="Module wechseln"></nav>
   <div id="detailContent"></div>
 </div>
 
@@ -369,6 +406,8 @@
 <div class="section" id="sec-protokoll">
   <div id="protokollContent"></div>
 </div>
+
+<div class="toast no-print" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 // ===== KONSTANTEN & PARAMETER (Stand 11/2026) =====
@@ -559,6 +598,7 @@ function renderQuestion() {
 
 function selectSingle(qId, value, el) {
   answers[qId] = value;
+  saveQuiz();
   el.parentElement.querySelectorAll('.opt-btn').forEach(b => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
   el.classList.add('selected');
   el.setAttribute('aria-pressed', 'true');
@@ -569,19 +609,24 @@ function toggleCheck(qId, value, el) {
   const idx = answers[qId].indexOf(value);
   if (idx > -1) { answers[qId].splice(idx, 1); el.classList.remove('selected'); el.setAttribute('aria-pressed', 'false'); }
   else { answers[qId].push(value); el.classList.add('selected'); el.setAttribute('aria-pressed', 'true'); }
+  saveQuiz();
 }
 
 function nextStep() {
-  if (currentStep < questions.length - 1) { currentStep++; renderQuestion(); }
+  if (currentStep < questions.length - 1) { currentStep++; saveQuiz(); renderQuestion(); }
 }
 function prevStep() {
-  if (currentStep > 0) { currentStep--; renderQuestion(); }
+  if (currentStep > 0) { currentStep--; saveQuiz(); renderQuestion(); }
 }
 function resetQuiz() {
   Object.keys(answers).forEach(k => delete answers[k]);
   Object.keys(detailData).forEach(k => delete detailData[k]);
   infoRead.clear();
   currentStep = 0;
+  discardSaved();
+  currentModule = null;
+  document.getElementById('detailContent').innerHTML = '';
+  document.getElementById('detailNav').innerHTML = '';
   document.getElementById('resultTab').style.display = 'none';
   document.getElementById('detailTab').style.display = 'none';
   document.getElementById('protokollTab').style.display = 'none';
@@ -910,6 +955,7 @@ function showResults() {
   document.getElementById('resultTab').style.display = '';
   document.getElementById('protokollTab').style.display = '';
   showTab('result');
+  saveQuiz(true);
 
   const groups = {
     pflicht: { title: '🔴 Pflichtversicherungen', items: [] },
@@ -941,12 +987,13 @@ function showResults() {
       const isCalc = CALC_MODULES.includes(r.detailModule);
       const btnLabel = isCalc ? (r.hasIt ? '🔍 Deckung prüfen' : '🔍 Vertiefen — Lücke berechnen') : '📖 Mehr erfahren';
       const vertiefenBtn = r.detailModule ? `<button class="btn-vertiefen" onclick="openDetail('${r.detailModule}')">${btnLabel}</button>` : '';
-      html += `<div class="result-card ${tag}">
+      html += `<div class="result-card ${tag}"${r.detailModule ? ` data-module="${r.detailModule}"` : ''}>
         <span class="r-icon">${r.icon}</span>
         <div class="r-body">
           <div class="r-name">${r.name}</div>
           <div class="r-reason">${r.reason}</div>
           ${tagLabels[r.tag] || ''} ${r.hasIt ? '<div class="r-check">✓ Bereits vorhanden</div>' : ''}
+          ${r.detailModule ? '<div class="r-status"></div>' : ''}
           ${vertiefenBtn}
         </div>
       </div>`;
@@ -956,16 +1003,18 @@ function showResults() {
 
   html += `<div class="result-section"><h3>⚪ Meist verzichtbar</h3>`;
   SKIP_ITEMS.forEach(it => {
-    html += `<div class="result-card skip"><span class="r-icon">${it.icon}</span><div class="r-body">
+    html += `<div class="result-card skip" data-module="${it.key}"><span class="r-icon">${it.icon}</span><div class="r-body">
       <div class="r-name">${it.name}</div>
       <div class="r-reason">Große Risiken versichern, kleine Schäden selbst tragen.</div>
-      <span class="r-tag tag-skip">VERZICHTBAR</span><br>
+      <span class="r-tag tag-skip">VERZICHTBAR</span>
+      <div class="r-status"></div>
       <button class="btn-vertiefen" onclick="openDetail('${it.key}')">📖 Mehr erfahren</button>
     </div></div>`;
   });
   html += '</div>';
 
   document.getElementById('resultContent').innerHTML = html;
+  updateAllCardStatuses();
 }
 
 // ===== DETAIL ANALYSIS MODULES =====
@@ -974,13 +1023,18 @@ function openDetail(module) {
   document.getElementById('protokollTab').style.display = '';
   showTab('detail');
 
-  const renderers = { bu: renderBU, phv: renderPHV, hausrat: renderHausrat, risiko: renderRisiko, unfall: renderUnfall, altersvorsorge: renderAltersvorsorge };
+  currentModule = module;
+  buildDetailNav();
   const el = document.getElementById('detailContent');
-  if (renderers[module]) {
-    el.innerHTML = renderers[module]();
+  if (DETAIL_RENDERERS[module]) {
+    el.innerHTML = DETAIL_RENDERERS[module]();
+    restoreInputs(module);
   } else if (INFO_MODULES[module]) {
     el.innerHTML = renderInfo(module);
+    saveInfoRead();
+    updateCardStatus(module);
   }
+  updateDetailNav();
 }
 
 // --- Maßnahmenplan / Beitragsschätzung ---
@@ -1084,7 +1138,7 @@ function calcBU() {
   const beitragsjahre = numVal('bu-beitragsjahre');
   const emOverride = numVal('bu-em');
 
-  if (netto === 0) { delete detailData.bu; document.getElementById('bu-result').innerHTML = ''; return; }
+  if (netto === 0) { delete detailData.bu; onCalcCleared('bu'); document.getElementById('bu-result').innerHTML = ''; return; }
 
   const recommended = Math.round(netto * 0.78);  // 78% Netto (Mittelwert aus 75-80%)
   const isEmployee = answers.job === 'employee';
@@ -1180,7 +1234,7 @@ function calcBU() {
   }
 
   document.getElementById('bu-result').innerHTML = html;
-  checkProtokoll();
+  afterCalc('bu');
 }
 
 // --- Hausrat Module ---
@@ -1235,7 +1289,7 @@ function calcHausrat() {
   const level = numVal('hr-level', 650);
   const fahrrad = numVal('hr-fahrrad');
 
-  if (flaeche === 0) { delete detailData.hausrat; document.getElementById('hr-result').innerHTML = ''; return; }
+  if (flaeche === 0) { delete detailData.hausrat; onCalcCleared('hausrat'); document.getElementById('hr-result').innerHTML = ''; return; }
 
   const recommended = Math.round(flaeche * level + fahrrad);
   const gap = Math.max(0, recommended - existing);
@@ -1280,7 +1334,7 @@ function calcHausrat() {
   }
 
   document.getElementById('hr-result').innerHTML = html;
-  checkProtokoll();
+  afterCalc('hausrat');
 }
 
 // --- Risikoleben Module ---
@@ -1342,7 +1396,7 @@ function calcRisiko() {
   const factor = numVal('rl-factor', 5);
   const alter = numVal('rl-alter');
 
-  if (brutto === 0) { delete detailData.risiko; document.getElementById('rl-result').innerHTML = ''; return; }
+  if (brutto === 0) { delete detailData.risiko; onCalcCleared('risiko'); document.getElementById('rl-result').innerHTML = ''; return; }
 
   const fromIncome = Math.round(brutto * factor);
   const recommended = fromIncome + kredit;  // Einkommensbedarf + Restschuld
@@ -1395,7 +1449,7 @@ function calcRisiko() {
   }
 
   document.getElementById('rl-result').innerHTML = html;
-  checkProtokoll();
+  afterCalc('risiko');
 }
 
 // --- PHV Module ---
@@ -1486,7 +1540,7 @@ function calcPHV() {
   }
 
   document.getElementById('phv-result').innerHTML = html;
-  checkProtokoll();
+  afterCalc('phv');
 }
 
 // --- Unfall Module ---
@@ -1557,7 +1611,7 @@ function calcUnfall() {
 
   document.getElementById('uv-grad-label').textContent = grad + '%';
 
-  if (grund === 0) { delete detailData.unfall; document.getElementById('uv-result').innerHTML = ''; return; }
+  if (grund === 0) { delete detailData.unfall; onCalcCleared('unfall'); document.getElementById('uv-result').innerHTML = ''; return; }
 
   const auszahlung = unfallAuszahlung(grund, grad, progKey);
   const maxAuszahlung = unfallAuszahlung(grund, 100, progKey);
@@ -1603,7 +1657,7 @@ function calcUnfall() {
   }
 
   document.getElementById('uv-result').innerHTML = html;
-  checkProtokoll();
+  afterCalc('unfall');
 }
 
 // --- Altersvorsorge Module ---
@@ -1703,7 +1757,7 @@ function calcAltersvorsorge() {
   const rA = numVal('av-ra', C.renditeAnsparen) / 100;
   const rP = numVal('av-rp', C.renditeRente) / 100;
 
-  if (netto === 0 || alter === 0) { delete detailData.altersvorsorge; document.getElementById('av-result').innerHTML = ''; return; }
+  if (netto === 0 || alter === 0) { delete detailData.altersvorsorge; onCalcCleared('altersvorsorge'); document.getElementById('av-result').innerHTML = ''; return; }
 
   const isEmployee = answers.job === 'employee';
   const isSelf = answers.job === 'self_employed';
@@ -1800,7 +1854,7 @@ function calcAltersvorsorge() {
   }
 
   document.getElementById('av-result').innerHTML = html;
-  checkProtokoll();
+  afterCalc('altersvorsorge');
 }
 
 // ===== PROTOKOLL BUTTON =====
@@ -2080,8 +2134,222 @@ function showTab(tab) {
   window.scrollTo(0, 0);
 }
 
+// ===== PERSISTENZ (sessionStorage), Kartenstatus, Modul-Navigation, Toast =====
+// sessionStorage (nicht localStorage): Daten verschwinden beim Schließen des Tabs.
+const SS_PREFIX = 'bedarfsanalyse_';
+const ssKey = (module, id) => `${SS_PREFIX}${module}_${id}`;
+function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { /* Speicher nicht verfügbar */ } }
+function ssClearAll() {
+  try { Object.keys(sessionStorage).filter(k => k.startsWith(SS_PREFIX)).forEach(k => sessionStorage.removeItem(k)); } catch (e) { /* ignorieren */ }
+}
+const storageOk = (() => { try { sessionStorage.setItem(SS_PREFIX + 'test', '1'); sessionStorage.removeItem(SS_PREFIX + 'test'); return true; } catch (e) { return false; } })();
+
+const MODULE_INPUTS = {
+  bu: ['bu-brutto', 'bu-netto', 'bu-alter', 'bu-beitragsjahre', 'bu-existing', 'bu-risk', 'bu-em'],
+  hausrat: ['hr-flaeche', 'hr-existing', 'hr-level', 'hr-fahrrad'],
+  risiko: ['rl-brutto', 'rl-kredit', 'rl-existing', 'rl-factor', 'rl-alter'],
+  phv: ['phv-deckung', 'phv-tarif'],
+  unfall: ['uv-grund', 'uv-prog', 'uv-brutto', 'uv-grad'],
+  altersvorsorge: ['av-brutto', 'av-netto', 'av-alter', 'av-rentenalter', 'av-beitragsjahre', 'av-existing', 'av-infl', 'av-ra', 'av-rp']
+};
+const CALC_FNS = { bu: calcBU, hausrat: calcHausrat, risiko: calcRisiko, phv: calcPHV, unfall: calcUnfall, altersvorsorge: calcAltersvorsorge };
+const DETAIL_RENDERERS = { bu: renderBU, phv: renderPHV, hausrat: renderHausrat, risiko: renderRisiko, unfall: renderUnfall, altersvorsorge: renderAltersvorsorge };
+
+let currentModule = null;
+let restoring = false;      // true, solange gespeicherte Werte wiederhergestellt werden (kein Toast)
+let pendingResume = null;   // gefundene Sitzung, über die der Nutzer noch entscheidet
+
+function persistInputs(module) {
+  (MODULE_INPUTS[module] || []).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) ssSet(ssKey(module, id), el.value);
+  });
+}
+
+function restoreInputs(module) {
+  let any = false;
+  (MODULE_INPUTS[module] || []).forEach(id => {
+    const el = document.getElementById(id);
+    const v = ssGet(ssKey(module, id));
+    if (!el || v === null) return;
+    if (el.tagName === 'SELECT' && ![...el.options].some(o => o.value === v)) return;
+    el.value = v;
+    any = true;
+  });
+  if (any && CALC_FNS[module]) {
+    restoring = true;
+    try { CALC_FNS[module](); } finally { restoring = false; }
+  }
+  return any;
+}
+
+// Eingaben der Detailmodule automatisch speichern (delegiert)
+['input', 'change'].forEach(evt => document.getElementById('detailContent').addEventListener(evt, () => {
+  if (currentModule && MODULE_INPUTS[currentModule]) persistInputs(currentModule);
+}));
+
+// --- Status auf den Ergebniskarten ---
+function moduleStatus(module) {
+  if (CALC_MODULES.includes(module)) {
+    const d = detailData[module];
+    if (!d) return null;
+    const ok = t => ({ kind: 'ok', text: '✅ Berechnet · ' + t });
+    const gap = t => ({ kind: 'gap', text: '✅ Berechnet · Lücke: ' + t });
+    switch (module) {
+      case 'bu': return d.gapOhneEM > 0 ? gap(`${fmt(d.gapOhneEM)} €/Monat`) : ok('Ausreichend abgesichert');
+      case 'hausrat': return d.gap > 0 ? gap(`${fmt(d.gap)} € Versicherungssumme`) : ok('Ausreichend abgesichert');
+      case 'risiko': return d.gap > 0 ? gap(`${fmt(d.gap)} €`) : ok('Ausreichend abgesichert');
+      case 'phv': return d.deckung >= 10 ? ok('Ausreichend abgesichert')
+        : d.deckung === 0 ? gap('keine PHV vorhanden') : gap(`Deckung nur ${d.deckung} Mio. € (empfohlen ≥ 10)`);
+      case 'unfall':
+        if (d.empfohleneGrund > 0) return d.gap > 0 ? gap(`${fmt(d.gap)} € Grundsumme`) : ok('Ausreichend abgesichert');
+        return { kind: 'read', text: `✅ Berechnet · Grundsumme ${fmt(d.grund)} €` };
+      case 'altersvorsorge': return d.gap > 0 ? gap(`${fmt(d.gap)} €/Monat`) : ok('Voraussichtlich ausreichend versorgt');
+    }
+    return null;
+  }
+  if (INFO_MODULES[module] && infoRead.has(module)) return { kind: 'read', text: '✅ Gelesen' };
+  return null;
+}
+
+function updateCardStatus(module) {
+  const st = moduleStatus(module);
+  document.querySelectorAll(`.result-card[data-module="${module}"] .r-status`).forEach(el => {
+    el.className = 'r-status' + (st ? ' show ' + st.kind : '');
+    el.textContent = st ? st.text : '';
+  });
+}
+function updateAllCardStatuses() {
+  document.querySelectorAll('.result-card[data-module]').forEach(c => updateCardStatus(c.dataset.module));
+}
+
+// --- Modul-Navigation (Chips) ---
+function buildDetailNav() {
+  const nav = document.getElementById('detailNav');
+  const seen = new Set();
+  const items = [];
+  generateRecommendations().forEach(r => {
+    if (r.detailModule && !seen.has(r.detailModule)) { seen.add(r.detailModule); items.push(r); }
+  });
+  nav.innerHTML = items.map(r =>
+    `<button type="button" class="chip" data-module="${r.detailModule}" title="${esc(r.name)}" onclick="openDetail('${r.detailModule}')"><span class="chip-check" aria-hidden="true"></span>${r.icon} ${esc(r.name)}</button>`
+  ).join('');
+}
+function updateDetailNav() {
+  const nav = document.getElementById('detailNav');
+  nav.querySelectorAll('.chip').forEach(ch => {
+    const m = ch.dataset.module;
+    const done = !!moduleStatus(m);
+    const active = m === currentModule;
+    ch.classList.toggle('active', active);
+    ch.classList.toggle('done', done);
+    ch.querySelector('.chip-check').textContent = done ? '✅' : '';
+    if (active) ch.setAttribute('aria-current', 'true'); else ch.removeAttribute('aria-current');
+  });
+  const act = nav.querySelector('.chip.active');
+  if (act) nav.scrollLeft = Math.max(0, act.offsetLeft - nav.clientWidth / 2 + act.offsetWidth / 2);
+}
+
+// --- Toast ---
+let toastTimer = null, toastDebounce = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+function scheduleSaveToast() {
+  if (!storageOk) return;
+  clearTimeout(toastDebounce);
+  toastDebounce = setTimeout(() => showToast('✅ Daten gespeichert'), 600);
+}
+
+// --- Hooks für die Rechenfunktionen ---
+function afterCalc(module) {
+  updateCardStatus(module);
+  updateDetailNav();
+  checkProtokoll();
+  if (!restoring) scheduleSaveToast();
+}
+function onCalcCleared(module) {
+  updateCardStatus(module);
+  updateDetailNav();
+}
+
+// --- Fragebogen speichern / fortsetzen ---
+function saveInfoRead() { ssSet(ssKey('info', 'read'), JSON.stringify([...infoRead])); }
+
+function saveQuiz(resultsShown) {
+  if (pendingResume) {  // Nutzer beginnt eine neue Analyse, ohne fortzusetzen
+    ssClearAll();
+    pendingResume = null;
+    document.getElementById('resumeBanner').hidden = true;
+  }
+  ssSet(ssKey('quiz', 'answers'), JSON.stringify(answers));
+  ssSet(ssKey('quiz', 'step'), String(currentStep));
+  if (resultsShown !== undefined) ssSet(ssKey('quiz', 'results'), resultsShown ? '1' : '0');
+}
+
+function loadSavedAnswers() {
+  let raw = null;
+  try { raw = JSON.parse(ssGet(ssKey('quiz', 'answers')) || 'null'); } catch (e) { return null; }
+  if (!raw || typeof raw !== 'object') return null;
+  const clean = {};
+  questions.forEach(q => {
+    const v = raw[q.id];
+    const valid = o => q.options.some(x => x.value === o);
+    if (q.type === 'multi') { if (Array.isArray(v)) clean[q.id] = v.filter(valid); }
+    else if (typeof v === 'string' && valid(v)) clean[q.id] = v;
+  });
+  return Object.keys(clean).length ? clean : null;
+}
+
+function initResume() {
+  const saved = loadSavedAnswers();
+  if (!saved || !storageOk) return;
+  const step = Math.min(questions.length - 1, Math.max(0, parseInt(ssGet(ssKey('quiz', 'step')), 10) || 0));
+  pendingResume = { answers: saved, step, results: ssGet(ssKey('quiz', 'results')) === '1' };
+  document.getElementById('resumeBanner').hidden = false;
+}
+
+// Gespeicherte Moduleingaben neu berechnen (füllt detailData für Kartenstatus und Protokoll)
+function rehydrateModules() {
+  const el = document.getElementById('detailContent');
+  let any = false;
+  CALC_MODULES.forEach(m => {
+    if (!DETAIL_RENDERERS[m] || !MODULE_INPUTS[m].some(id => ssGet(ssKey(m, id)) !== null)) return;
+    el.innerHTML = DETAIL_RENDERERS[m]();
+    if (restoreInputs(m) && detailData[m]) any = true;
+  });
+  el.innerHTML = '';
+  if (any) document.getElementById('detailTab').style.display = '';
+}
+
+function resumeAnalysis() {
+  if (!pendingResume) return;
+  const r = pendingResume;
+  pendingResume = null;
+  document.getElementById('resumeBanner').hidden = true;
+  Object.assign(answers, r.answers);
+  currentStep = r.step;
+  try { JSON.parse(ssGet(ssKey('info', 'read')) || '[]').forEach(k => { if (INFO_MODULES[k]) infoRead.add(k); }); } catch (e) { /* ignorieren */ }
+  renderQuestion();
+  rehydrateModules();
+  const complete = questions.every(q => q.type === 'multi' || answers[q.id]);
+  if (r.results && complete) showResults(); else showTab('quiz');
+}
+
+function discardSaved() {
+  ssClearAll();
+  pendingResume = null;
+  document.getElementById('resumeBanner').hidden = true;
+}
+
 // ===== INIT =====
 renderQuestion();
+initResume();
 </script>
 </body>
 </html>
